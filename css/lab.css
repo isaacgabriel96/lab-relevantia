@@ -114,8 +114,6 @@ textarea.input{min-height:110px;resize:vertical;line-height:1.5}
 /* ═════════ ONBOARDING ═════════ */
 .ob{min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
 .ob-top{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:12px 28px;background:rgba(5,3,0,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.ob-plan{justify-self:end;display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:var(--radius-pill);background:rgba(184,134,11,.1);border:1px solid rgba(184,134,11,.4);font-size:11.5px;font-weight:600;color:var(--gold-light)}
-.ob-plan svg{width:13px;height:13px}
 .steps{list-style:none;display:flex;align-items:center}
 .steps li{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border:1px solid transparent;border-radius:var(--radius-pill);font-size:12.5px;font-weight:600;color:var(--t-3);white-space:nowrap}
 .steps li+li{margin-left:34px;position:relative}
@@ -132,10 +130,6 @@ textarea.input{min-height:110px;resize:vertical;line-height:1.5}
 .welcome .cta{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;margin-top:28px}
 .welcome .meta{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--t-3)}
 .welcome .meta svg{width:14px;height:14px;color:var(--gold-light)}
-.welcome-offers{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:28px;max-width:540px}
-.welcome-offers li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-md);background:rgba(255,255,255,.025);border:1px solid var(--line-2);font-size:13px}
-.welcome-offers b{font-family:var(--font-heading);font-weight:600}
-.welcome-offers span{font-size:11.5px;font-weight:600;color:var(--gold-bright);white-space:nowrap}
 .welcome-alt{margin-top:18px;font-size:12.5px;color:var(--t-3)}
 
 /* card escuro com brilho (hero do Intelligence) */
@@ -148,7 +142,7 @@ textarea.input{min-height:110px;resize:vertical;line-height:1.5}
 .protocol-h{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:4px}
 .protocol-h .mono+.mono{color:var(--t-3)!important}
 .protocol ol{list-style:none}
-.protocol li{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line-2)}
+.protocol li{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line-2)}
 .protocol li:last-child{border-bottom:0}
 .protocol .n{font-family:var(--font-display);font-weight:600;font-size:12px;color:var(--gold-light);padding-top:2px}
 .protocol b{display:block;font-family:var(--font-heading);font-weight:600;font-size:14.5px}
@@ -276,8 +270,6 @@ textarea.input{min-height:110px;resize:vertical;line-height:1.5}
 .nav-item.on svg{opacity:1;color:var(--gold-bright)}
 .nav-item .short{display:none}
 .nav-item .badge{margin-left:auto;background:rgba(184,134,11,.22);color:var(--gold-bright);font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:var(--radius-pill)}
-.side-plan{display:flex;align-items:center;gap:8px;margin:0 12px 10px;padding:9px 12px;border-radius:var(--radius-sm);background:rgba(184,134,11,.1);border:1px solid var(--line);font-size:11.5px;font-weight:600;color:var(--gold-light)}
-.side-plan svg{width:14px;height:14px}
 .side-foot{display:flex;align-items:center;gap:10px;margin:0 12px 16px;padding:12px;border-radius:var(--radius-md);border:1px solid var(--line-2);transition:background .15s}
 .side-foot:hover{background:rgba(255,255,255,.04)}
 .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--gold-gradient);color:var(--ink);flex:none}
@@ -312,8 +304,7 @@ textarea.input{min-height:110px;resize:vertical;line-height:1.5}
 .g-wide{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start}
 .empty{padding:24px;text-align:center;color:var(--t-3);font-size:13px;border:1px dashed var(--line);border-radius:var(--radius-md)}
 /* item de lista (linha clicável dentro dos cards) */
-.sol-row,.week a,.live-row,.q-item,.poll-opt,.note-lives button,.note-entry,.roles-pick a,.welcome-offers li{background:rgba(255,255,255,.025);border:1px solid var(--line-2)}
-
+.sol-row,.week a,.live-row,.q-item,.poll-opt,.note-lives button,.note-entry,.roles-pick a,
 /* status e ofertas */
 .offer{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:var(--radius-pill);color:var(--gold-bright);background:rgba(184,134,11,.14);border:1px solid rgba(184,134,11,.35);white-space:nowrap}
 .status{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ok)}
@@ -609,8 +600,7 @@ body.no-scroll{overflow:hidden}
   .ob-body{padding:24px 16px 48px;align-items:flex-start}
   .welcome h1{font-size:32px}
   .welcome .cta .btn{width:100%}
-  .welcome-offers,.form-grid{grid-template-columns:1fr}
-  .protocol{padding:20px}
+    .protocol{padding:20px}
   .ob-actions{flex-direction:column-reverse;align-items:stretch}
   .ob-actions .btn{width:100%}
   .rx-q h2{font-size:21px}

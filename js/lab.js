@@ -383,35 +383,28 @@ window.addEventListener('hashchange', render);
 function obTop(step) {
   const lbl = ['Cadastro', 'Raio X', 'Leitura'];
   const st = lbl.map((l, i) => `<li class="st ${i < step ? 'done' : i === step ? 'on' : ''}"><span class="n">${i < step ? '✓' : i + 1}</span><span class="lbl">${l}</span></li>`).join('');
-  return `<header class="ob-top">${logo()}${step >= 0 ? `<ol class="steps" aria-label="Etapa ${Math.min(step, 2) + 1} de 3">${st}</ol>` : '<span></span>'}<span class="ob-plan">${ic('shield')}Gratuito</span></header>`;
+  return `<header class="ob-top">${logo()}${step >= 0 ? `<ol class="steps" aria-label="Etapa ${Math.min(step, 2) + 1} de 3">${st}</ol>` : '<span></span>'}<span></span></header>`;
 }
 const ONB = {
   'boas-vindas': () => `
   <div class="ob">${obTop(-1)}
     <main class="ob-body"><div class="welcome">
       <div>
-        <span class="eyebrow"><span class="dot"></span>Relevantia Lab · gratuito</span>
+        <span class="eyebrow"><span class="dot"></span>Relevantia Lab</span>
         <h1>A porta de entrada para o ecossistema Relevantia.</h1>
-        <p class="lead">Um Raio X da sua empresa nas seis dimensões do Intelligence, a live semanal Audiência S/A com o Isaac Araújo e acesso às soluções da Relevantia para testar no seu negócio.</p>
+        <p class="lead">Faça o Raio X da sua empresa, acompanhe a live Audiência S/A e teste as soluções da Relevantia.</p>
         <div class="cta">
           <button class="btn btn-gold btn-lg" data-go="cadastro">Criar meu acesso grátis ${ic('arrow', 2)}</button>
-          <span class="meta">${ic('shield')}<span>Sem custo · cerca de 3 minutos</span></span>
+          <span class="meta">Leva cerca de 3 minutos</span>
         </div>
-        <ul class="welcome-offers" aria-label="O que o Lab libera">
-          <li><b>Intelligence</b><span>${CONFIG.intelTrialDays} dias grátis</span></li>
-          <li><b>Radar</b><span>Cadastro gratuito</span></li>
-          <li><b>The Edge</b><span>Inscrição</span></li>
-          <li><b>Ferramentas</b><span>Teste grátis</span></li>
-        </ul>
         <p class="welcome-alt">É atleta, criador, artista, evento ou mídia? <a class="link" href="detentores/">Entre pelo Lab para detentores ${ic('arrow')}</a></p>
       </div>
       <div class="protocol" aria-label="Como funciona a entrada">
-        <div class="protocol-h"><span class="mono">Protocolo de entrada</span><span class="mono" style="color:var(--t-3)">4 etapas</span></div>
+        <div class="protocol-h"><span class="mono">Como funciona</span></div>
         <ol>
-          <li><span class="n">01</span><div><b>Cadastro básico</b><small>Quem é você e qual é a empresa.</small></div><span class="tm">30s</span></li>
-          <li><span class="n">02</span><div><b>Raio X da empresa</b><small>${QUESTIONS.length} perguntas rápidas, uma por vez.</small></div><span class="tm">2min</span></li>
-          <li><span class="n">03</span><div><b>O momento da empresa</b><small>A fase, um sinal de atenção e a dimensão que pede cuidado.</small></div><span class="tm">na hora</span></li>
-          <li><span class="n">04</span><div><b>Entrada no Lab</b><small>Lives, soluções e o próximo passo recomendado para você.</small></div><span class="tm">✓</span></li>
+          <li><span class="n">01</span><div><b>Cadastro</b></div><span class="tm">30s</span></li>
+          <li><span class="n">02</span><div><b>Raio X da empresa</b></div><span class="tm">2min</span></li>
+          <li><span class="n">03</span><div><b>Leitura e próximo passo</b></div><span class="tm">na hora</span></li>
         </ol>
       </div>
     </div></main>
@@ -573,7 +566,6 @@ function shell(r, body) {
     <aside class="side">
       <a href="#inicio" class="side-logo">${logo()}</a>
       <nav class="nav" aria-label="Lab">${nav}</nav>
-      <span class="side-plan">${ic('shield')}<span>Plano gratuito</span></span>
       <a href="#perfil" class="side-foot"><span class="avatar">${esc(initials(p.nome))}</span><span class="who"><b>${esc(p.nome)}</b><small>${esc(p.empresa)}</small></span></a>
     </aside>
     <main class="main">
