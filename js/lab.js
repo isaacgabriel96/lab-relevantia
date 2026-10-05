@@ -1,4 +1,4 @@
-/* Lab Relevantia · V1 essencial
+/* Relevantia Lab · porta de entrada gratuita do ecossistema
    App estático: os dados ficam no navegador (localStorage) até existir um back-end.
    Tudo que o Isaac precisa ajustar está em CONFIG e CONTENT, logo abaixo. */
 (() => {
@@ -7,17 +7,28 @@
 /* ============ CONFIGURAÇÃO ============ */
 const CONFIG = {
   live: {
-    weekday: 4,          // 0 = domingo … 4 = quinta
-    hour: 19, minute: 0,
+    weekday: 2,          // 0 = domingo … 2 = terça
+    hour: 20, minute: 0,
     durationMin: 90,
     url: '#',            // link do YouTube da próxima live
-    channelUrl: '#',     // canal / playlist de gravações
+    channelUrl: 'https://www.youtube.com/@isaacgaraujo',
   },
   // Endpoint da IA. Vazio = usa a leitura local (regras). Se preenchido, recebe
   // POST { nota, live, perfil, raiox } e deve devolver { leitura, pergunta }.
   aiEndpoint: '',
-  trialUrls: { edge: '#', radar: '#', intelligence: '#' },
-  storageKey: 'lab-relevantia-v1e',
+  // Endpoint da inscrição no The Edge. Vazio = abre o e-mail com a mensagem pronta.
+  // Se preenchido, recebe POST { inscricao, perfil, raiox }.
+  edgeEndpoint: '',
+  contact: { email: 'hello@relevantia.com.br', whatsapp: '' },
+  urls: {
+    site: 'https://relevantia.com.br',
+    radar: 'https://radar-relevantia.com.br/',
+    radarMarca: 'https://radar-relevantia.com.br/cadastro-marca.html',
+    radarDetentor: 'https://radar-relevantia.com.br/cadastro-detentor.html',
+    intelligence: '#',   // link de acesso ao teste do Intelligence
+  },
+  intelTrialDays: 3,
+  storageKey: 'lab-relevantia-v2',
 };
 
 /* ============ CONTEÚDO (dados de exemplo — trocar pelos reais) ============ */
@@ -52,23 +63,69 @@ const CONTENT = {
     { id: 's3', text: 'Vale mais patrocinar um evento local ou um creator do nicho?', by: 'Juliana', seg: 'Alimentação', votes: 21 },
     { id: 's4', text: 'Como apresentar uma proposta de parceria para uma marca muito maior que a minha?', by: 'Diego', seg: 'SaaS B2B', votes: 17 },
   ],
-  // descrições provisórias — validar com o Isaac
-  trials: [
-    { k: 'edge', name: 'The Edge', featured: true, icon: 'edge', days: 7,
-      desc: 'A leitura completa da sua empresa. O Raio X do Lab é só a primeira camada dele.',
-      items: ['Onde está a alavanca de crescimento', 'O que fazer primeiro, em ordem de impacto', 'Comparação com empresas do mesmo porte'] },
-    { k: 'radar', name: 'Radar', icon: 'radar', days: 7,
-      desc: 'Os movimentos do mercado que importam para o seu segmento, filtrados toda semana.',
-      items: ['Movimentos de marcas e concorrentes', 'Oportunidades de parceria e patrocínio', 'Resumo semanal'] },
-    { k: 'intelligence', name: 'Intelligence', icon: 'intel', days: 7,
-      desc: 'Dados e inteligência para decidir onde investir o próximo real de marketing.',
-      items: ['Leitura de canais e custos', 'Benchmarks do mercado', 'Relatórios sob demanda'] },
-  ],
 };
 
+/* ============ SOLUÇÕES RELEVANTIA ============ */
+// Mesma copy do site (relevantia.com.br). O Lab é gratuito; cada solução tem uma porta de entrada:
+// Intelligence → teste de 3 dias · Radar → cadastro gratuito · The Edge → inscrição.
+const PRODUCTS = [
+  { k: 'intelligence', name: 'Relevantia Intelligence', short: 'Intelligence', icon: 'intel', layer: 'Tecnologia · Estratégia',
+    offer: `${CONFIG.intelTrialDays} dias grátis`,
+    title: 'O Raio X da sua empresa em seis dimensões',
+    desc: 'A plataforma de estratégia da Relevantia. Lê o negócio em Core, Brand, Audience, Business, Partnerships e Beyond e aponta a alavanca prioritária.',
+    items: ['A leitura completa do seu Raio X, com nota por dimensão', 'Chat do Intelligence: identifica o assunto e sugere o próximo passo', 'Biblioteca de frameworks para cada dimensão'] },
+  { k: 'radar', name: 'Radar', short: 'Radar', icon: 'radar', layer: 'Operação',
+    offer: 'Cadastro gratuito',
+    title: 'O sistema operacional dos patrocínios e parcerias',
+    desc: 'Descoberta, proposta, contrato, entregas e resultado num só lugar, com o encaixe entre marca e ativo calculado em vez de lista fria.',
+    items: ['Catálogo curado, com dados reais de audiência', 'Propostas e contrapropostas com histórico', 'Entregas e contrapartidas num só painel'] },
+  { k: 'edge', name: 'The Edge', short: 'The Edge', icon: 'edge', layer: 'Consultoria',
+    offer: 'Inscrição',
+    title: 'Estratégia ao lado de quem decide',
+    desc: 'A consultoria da Relevantia para fundadores, C-level e boards. Gente experiente trabalhando dentro das decisões de marca, portfólio, receita e parcerias.',
+    items: ['Mentoria executiva com a liderança', 'Conselho ampliado com uma rede curada', 'Sprints estratégicos: do diagnóstico à recomendação'] },
+];
+const RADAR_ROLES = [
+  { k: 'marca', l: 'Sou marca', d: 'Quem investe: encontre ativos com encaixe para a sua marca.', url: () => CONFIG.urls.radarMarca },
+  { k: 'detentor', l: 'Sou detentor', d: 'Quem capta: atleta, evento, criador, artista ou mídia.', url: () => CONFIG.urls.radarDetentor },
+  { k: 'agencia', l: 'Sou agência', d: 'Quem gere: carteira de patrocínios de vários clientes.', url: () => CONFIG.urls.radar },
+];
+const EDGE_FORMATS = ['Mentoria executiva', 'Conselho ampliado', 'Sprint estratégico', 'Ainda não sei'];
+const prod = k => PRODUCTS.find(p => p.k === k);
+
+// Agentes e plug and play: quem está no Lab testa sem custo.
+// Seleção curta da planilha "Frameworks The Edge", só com o que já dá para entregar hoje
+// (conversa e documento, sem integração). type: 'agent' ou 'plug' (plug and play).
+// url: acesso liberado no teste ('#' = o acesso chega por e-mail). days: duração do teste.
+const TOOLS = [
+  { k: 'prospeccao', type: 'agent', name: 'Agente de Prospecção', icon: 'target', days: 3, url: '#', dim: 'partnerships',
+    desc: 'Encontra e prepara a abordagem das marcas com maior chance de fechar parceria.',
+    how: 'Pesquisa segmento, patrocínios recentes e o momento de cada marca, e cruza com o perfil e os ativos da sua empresa.',
+    out: 'Lista priorizada de marcas com ângulo de abordagem e mensagem sugerida.' },
+  { k: 'proposta', type: 'agent', name: 'Agente de Proposta', icon: 'file', days: 3, url: '#', dim: 'business',
+    desc: 'Gera propostas comerciais personalizadas para cada cliente ou marca.',
+    how: 'Cruza o perfil e os ativos da sua empresa com o segmento e o momento de quem vai receber a proposta.',
+    out: 'Proposta estruturada com contexto, solução, entregas, investimento e próximos passos.' },
+  { k: 'inventario', type: 'plug', name: 'Inventário de Ativos', icon: 'grid', days: 3, url: '#', dim: 'brand',
+    desc: 'Levantamento de tudo que a marca tem e pode oferecer a parceiros e patrocinadores.',
+    how: 'Formulário por categoria: espaços físicos, canais digitais, formatos de conteúdo, dados de audiência, eventos, acessos e propriedade intelectual.',
+    out: 'Inventário organizado e precificável, pronto para montar cotas e propostas.' },
+];
+const TOOL_TYPE = { agent: 'Agente', plug: 'Plug and play' };
+const tool = k => TOOLS.find(t => t.k === k);
+
 /* ============ RAIO X ============ */
-// Versão essencial: a leitura mostra o momento da empresa e um sinal de atenção.
-// O diagnóstico completo fica no The Edge.
+// Versão gratuita: a leitura mostra o momento da empresa, um sinal de atenção e a dimensão
+// que pede atenção. As notas por dimensão e a alavanca ficam no Intelligence.
+// As 6 dimensões são as mesmas do Intelligence (cores só como acento, nunca em texto).
+const DIMS = {
+  core: { n: 'Core', d: 'Essência e governança' },
+  brand: { n: 'Brand', d: 'Posicionamento e marca' },
+  audience: { n: 'Audience', d: 'Público e comunidade' },
+  business: { n: 'Business', d: 'Modelo de negócio e receita' },
+  partnerships: { n: 'Partnerships', d: 'Parcerias e patrocínio' },
+  beyond: { n: 'Beyond', d: 'Novas apostas e futuro' },
+};
 const MOMENTS = [
   { n: 'Em ajuste', p: 'O marketing está trabalhando mais do que devolve. Antes de investir mais, a empresa precisa entender onde o esforço está se perdendo.' },
   { n: 'Em travessia', p: 'Existe base, mas o que trouxe a empresa até aqui está rendendo menos. É o momento em que fazer diferente pesa mais do que fazer mais.' },
@@ -85,26 +142,29 @@ const CHALLENGES = [
   { v: 'crescer', l: 'Encontrar novos caminhos de crescimento', t: 'parcerias' },
   { v: 'time', l: 'Time e execução', t: 'essencia' },
 ];
-// p = campo do perfil; s = sinal mostrado quando a resposta é uma das duas primeiras
+// p = campo do perfil; d = dimensão do Intelligence; s = sinal mostrado quando a resposta é uma das duas primeiras
 const QUESTIONS = [
   { p: 'faturamento', q: 'Para calibrar a leitura: qual a faixa de faturamento anual da empresa?', hint: 'Usamos só para comparar com empresas do mesmo porte.',
     o: ['Até R$ 1 milhão', 'R$ 1 a 5 milhões', 'R$ 5 a 30 milhões', 'R$ 30 a 100 milhões', 'Acima de R$ 100 milhões'] },
   { p: 'time', q: 'E quantas pessoas trabalham na empresa hoje?', o: ['1 a 10', '11 a 50', '51 a 200', 'Mais de 200'] },
-  { q: 'Se um cliente tivesse que explicar o que a sua empresa faz em uma frase, ele conseguiria?',
+  { d: 'core', q: 'Se um cliente tivesse que explicar o que a sua empresa faz em uma frase, ele conseguiria?',
     o: ['Não, cada um explica de um jeito', 'Mais ou menos, depende de quem fala', 'Sim, a maioria acerta', 'Sim, e usando as nossas palavras'],
     s: 'Cada pessoa explica a empresa de um jeito. Isso encarece tudo que vem depois, da venda à parceria.' },
-  { q: 'Por que alguém escolhe vocês e não o concorrente?',
+  { d: 'brand', q: 'Por que alguém escolhe vocês e não o concorrente?',
     o: ['Principalmente preço', 'Indicação e relacionamento', 'Qualidade reconhecida', 'Algo que só a gente tem'],
     s: 'O cliente escolhe vocês por preço ou relacionamento. Sem uma diferença clara, cada venda custa mais.' },
-  { q: 'Como está a relação entre investimento em marketing e resultado?',
+  { d: 'business', q: 'Como está a relação entre investimento em marketing e resultado?',
     o: ['Investimos mais e o resultado não acompanha', 'Estável, sem crescer', 'Cresce, mas a margem aperta', 'Cresce com margem saudável'],
     s: 'Mais investimento não está virando mais resultado. É o sintoma mais comum do mercado agora, e raramente se resolve gastando mais.' },
-  { q: 'Onde está a sua audiência hoje?',
+  { d: 'audience', q: 'Onde está a sua audiência hoje?',
     o: ['Depende de anúncio pago', 'Nas redes, com alcance baixo', 'Em base própria ativa (lista, WhatsApp, CRM)', 'Numa comunidade que fala com a gente'],
     s: 'A empresa ainda depende de anúncio para falar com quem compra. Cada venda começa do zero.' },
-  { q: 'A empresa já fez alguma parceria ou patrocínio que trouxe resultado?',
+  { d: 'partnerships', q: 'A empresa já fez alguma parceria ou patrocínio que trouxe resultado?',
     o: ['Nunca fizemos', 'Fizemos, sem resultado claro', 'Algumas deram certo', 'É parte da estratégia'],
     s: 'Parcerias ainda não fazem parte da estratégia. Costuma ser um dos caminhos mais subaproveitados para crescer gastando menos.' },
+  { d: 'beyond', q: 'No último ano, a empresa testou alguma frente nova de receita ou produto?',
+    o: ['Não, focamos no que já existe', 'Pensamos, mas não testamos', 'Testamos algo pontual', 'Temos um jeito de testar com frequência'],
+    s: 'A empresa não está testando frentes novas. Quando o caminho atual desacelera, falta uma alternativa pronta.' },
   { p: 'desafio', q: 'Por último: qual é o maior desafio da empresa hoje?', hint: 'A IA usa isso para ler as suas anotações.',
     o: CHALLENGES.map(c => c.l).concat('Outro'), last: true },
 ];
@@ -169,15 +229,27 @@ const P = {
   out: '<path d="M14 3h7v7M21 3l-9 9"/><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/>',
   download: '<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',
   refresh: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+  grid: '<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>',
+  bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  dots: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
 };
 const ic = (n, sw = 1.8) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
-const mark = (s = 24) => `<svg width="${s}" height="${s}" aria-hidden="true"><use href="#mark"/></svg>`;
+// Logo oficial (mesmo arquivo do Intelligence: assets/logos/mark-1.png)
+const logo = () => `<span class="logo"><img src="assets/logos/mark-1.png" alt="" width="32" height="32"><span><strong>Relevantia</strong><small>Lab</small></span></span>`;
 
 /* ============ ESTADO ============ */
-const blank = () => ({ profile: null, raiox: null, rxDraft: null, notes: [], questions: [], qVotes: [], pollVote: null, trials: {}, tourDone: false, createdAt: Date.now() });
+// trials: { intelligence: início, <ferramenta>: início } · radar: { role, at } · edge: inscrição no The Edge
+const blank = () => ({ profile: null, raiox: null, rxDraft: null, notes: [], questions: [], qVotes: [], pollVote: null, trials: {}, radar: null, edge: null, tourDone: false, createdAt: Date.now() });
 let S = load();
 function load() {
   try { const s = JSON.parse(localStorage.getItem(CONFIG.storageKey)); if (s && typeof s === 'object') return Object.assign(blank(), s); } catch (e) {}
+  // V1 (lab-relevantia-v1e): aproveita perfil, anotações e votos. O Raio X é refeito, porque agora
+  // ele lê as 6 dimensões do Intelligence; os testes de 7 dias da V1 não valem mais.
+  try {
+    const o = JSON.parse(localStorage.getItem('lab-relevantia-v1e'));
+    if (o && o.profile) return Object.assign(blank(), { profile: o.profile, notes: o.notes || [], questions: o.questions || [], qVotes: o.qVotes || [], pollVote: o.pollVote ?? null, createdAt: o.createdAt || Date.now() });
+  } catch (e) {}
   return blank();
 }
 function save() { try { localStorage.setItem(CONFIG.storageKey, JSON.stringify(S)); } catch (e) {} }
@@ -221,27 +293,72 @@ function computeRaiox(a) {
   const diag = QUESTIONS.map((q, i) => q.s ? i : -1).filter(i => i >= 0);
   const pct = Math.round(diag.reduce((t, i) => t + a[i], 0) / (diag.length * 3) * 100);
   const low = diag.slice().sort((x, y) => a[x] - a[y])[0];
-  return { pct, moment: momentOf(pct), signal: a[low] <= 1 ? low : null, at: Date.now(), code: 'RX-' + Math.floor(1000 + Math.random() * 9000) };
+  // dimensão que pede atenção: a de menor resposta (fica visível); as notas ficam no Intelligence
+  const dims = {}; diag.forEach(i => { dims[QUESTIONS[i].d] = a[i]; });
+  return { pct, moment: momentOf(pct), signal: a[low] <= 1 ? low : null, dims, weak: QUESTIONS[low].d, at: Date.now(), code: 'RX-' + Math.floor(1000 + Math.random() * 9000) };
+}
+
+/* ============ SOLUÇÕES: estado de cada porta de entrada ============ */
+const DAY = 864e5;
+const daysLeft = (start, days) => Math.max(0, Math.ceil((start + days * DAY - Date.now()) / DAY));
+// status: 'open' (ainda não usou) · 'active' (teste rodando / cadastro feito / inscrição enviada) · 'ended' (teste acabou)
+function trialStatus(k, days) {
+  const on = S.trials[k];
+  if (!on) return { st: 'open' };
+  const left = daysLeft(on, days);
+  return left > 0 ? { st: 'active', left } : { st: 'ended', left: 0 };
+}
+function productStatus(k) {
+  if (k === 'intelligence') return trialStatus('intelligence', CONFIG.intelTrialDays);
+  if (k === 'radar') return S.radar ? { st: 'active' } : { st: 'open' };
+  if (k === 'edge') return S.edge ? { st: 'active' } : { st: 'open' };
+}
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+
+// Próximo passo recomendado, a partir do Raio X e do perfil.
+// Quem decide numa empresa de R$ 5 milhões ou mais → The Edge; parcerias como ponto fraco → Radar;
+// o resto → Intelligence, que continua o Raio X. Passos já dados saem da fila.
+function recommend() {
+  const p = S.profile || {}, R = S.raiox;
+  const leader = ['Dono(a) / sócio(a)', 'CEO / diretor(a)'].includes(p.cargo);
+  const big = QUESTIONS[0].o.indexOf(p.faturamento) >= 2;
+  const order = leader && big ? ['edge', 'intelligence', 'radar']
+    : R && R.weak === 'partnerships' ? ['radar', 'intelligence', 'edge']
+    : ['intelligence', 'radar', 'edge'];
+  const k = order.find(x => productStatus(x).st === 'open') || order[0];
+  const why = {
+    intelligence: R ? `O Raio X apontou ${DIMS[R.weak].n} como a dimensão que pede atenção. No Intelligence você vê a nota de cada uma das seis e a alavanca prioritária.` : 'A leitura completa da empresa em seis dimensões.',
+    radar: 'Parcerias apareceram como o caminho menos explorado da empresa. No Radar você encontra ativos com encaixe para a sua marca e negocia num único fluxo.',
+    edge: `Para uma empresa do porte da ${p.empresa || 'sua'}, a estratégia rende mais com o time The Edge ao lado de quem decide.`,
+  }[k];
+  return { k, why };
 }
 
 /* ============ ROTEADOR ============ */
 const LAB_VIEWS = {
-  inicio: { t: 'Início', i: 'home', sec: 'Lab' },
-  lives: { t: 'Lives', i: 'play', sec: 'Lab' },
-  duvidas: { t: 'Dúvidas', i: 'ask', sec: 'Lab' },
-  votacoes: { t: 'Votações', i: 'vote', sec: 'Lab' },
-  anotacoes: { t: 'Anotações + IA', i: 'notes', sec: 'Lab' },
+  inicio: { t: 'Início', i: 'home', sec: 'Relevantia' },
+  solucoes: { t: 'Soluções', i: 'grid', sec: 'Relevantia' },
+  ferramentas: { t: 'Agentes e plug and play', short: 'Agentes', i: 'bolt', sec: 'Relevantia' },
+  lives: { t: 'Lives', i: 'play', sec: 'Audiência S/A' },
+  duvidas: { t: 'Dúvidas', i: 'ask', sec: 'Audiência S/A' },
+  votacoes: { t: 'Votações', i: 'vote', sec: 'Audiência S/A' },
+  anotacoes: { t: 'Anotações + IA', short: 'Anotações', i: 'notes', sec: 'Audiência S/A' },
   raiox: { t: 'Raio X', i: 'flask', sec: 'Sua empresa' },
-  ecossistema: { t: 'Ecossistema', i: 'eco', sec: 'Sua empresa' },
   perfil: { t: 'Perfil', i: 'user', sec: 'Sua empresa' },
+  // fora do menu: aparece destacando o item "parent"
+  'the-edge': { t: 'Inscrição no The Edge', i: 'edge', parent: 'solucoes', hidden: true },
 };
+const ALIASES = { ecossistema: 'solucoes' };
+// No celular, a barra inferior mostra estas; o resto fica em "Mais".
+const TABBAR = ['inicio', 'solucoes', 'ferramentas', 'lives'];
 const app = $('#app');
 let route = '';
-const ui = { livesTab: 'gravacoes', openLive: null, noteLive: null, qSort: 'votos', aiBusy: null };
+const ui = { livesTab: 'gravacoes', openLive: null, noteLive: null, qSort: 'votos', aiBusy: null, radarPick: false };
 
 function go(r) { if (location.hash === '#' + r) render(); else location.hash = '#' + r; }
 function resolve() {
   let r = location.hash.replace(/^#\/?/, '') || '';
+  r = ALIASES[r] || r;
   const onboarding = ['boas-vindas', 'cadastro', 'raio-x', 'processando', 'resultado'];
   if (!S.profile && !['boas-vindas', 'cadastro'].includes(r)) r = 'boas-vindas';
   else if (S.profile && !S.raiox && !['raio-x', 'processando', 'cadastro', 'boas-vindas'].includes(r)) r = 'raio-x';
@@ -253,6 +370,7 @@ function render() {
   if (('#' + r) !== location.hash) { history.replaceState(null, '', '#' + r); }
   route = r;
   endTour(true);
+  document.body.classList.remove('no-scroll');
   window.scrollTo(0, 0);
   if (LAB_VIEWS[r]) app.innerHTML = shell(r, VIEWS[r]());
   else app.innerHTML = '<div class="glow"></div><div class="grid-bg"></div>' + ONB[r]();
@@ -264,29 +382,36 @@ window.addEventListener('hashchange', render);
 /* ============ ONBOARDING ============ */
 function obTop(step) {
   const lbl = ['Cadastro', 'Raio X', 'Leitura'];
-  const st = lbl.map((l, i) => `<div class="st ${i < step ? 'done' : i === step ? 'on' : ''}"><i>${i < step ? '✓' : i + 1}</i><span class="lbl">${l}</span></div>`).join('<span class="bar"></span>');
-  return `<header class="ob-top"><span class="logo">${mark()}Relevantia<span class="lab-tag">LAB</span></span>${step >= 0 ? `<div class="steps" aria-label="Etapa ${step + 1} de 3">${st}</div>` : ''}</header>`;
+  const st = lbl.map((l, i) => `<li class="st ${i < step ? 'done' : i === step ? 'on' : ''}"><span class="n">${i < step ? '✓' : i + 1}</span><span class="lbl">${l}</span></li>`).join('');
+  return `<header class="ob-top">${logo()}${step >= 0 ? `<ol class="steps" aria-label="Etapa ${Math.min(step, 2) + 1} de 3">${st}</ol>` : '<span></span>'}<span class="ob-plan">${ic('shield')}Gratuito</span></header>`;
 }
 const ONB = {
   'boas-vindas': () => `
   <div class="ob">${obTop(-1)}
     <main class="ob-body"><div class="welcome">
       <div>
-        <span class="eyebrow"><span class="dot"></span>Lab Relevantia</span>
-        <h1>O lugar onde as lives viram <span class="serif">prática</span> na sua empresa.</h1>
-        <p class="lead">Lives semanais com o Isaac, suas dúvidas na pauta e uma IA que lê cada aula à luz do seu negócio. Antes de entrar, a gente faz uma leitura rápida da sua empresa.</p>
+        <span class="eyebrow"><span class="dot"></span>Relevantia Lab · gratuito</span>
+        <h1>A porta de entrada para o ecossistema Relevantia.</h1>
+        <p class="lead">Um Raio X da sua empresa nas seis dimensões do Intelligence, a live semanal Audiência S/A com o Isaac Araújo e acesso às soluções da Relevantia para testar no seu negócio.</p>
         <div class="cta">
-          <button class="btn btn-gold btn-lg" data-go="cadastro">Começar ${ic('arrow', 2)}</button>
-          <span class="meta">${ic('shield')}<span>Gratuito · cerca de 3 minutos</span></span>
+          <button class="btn btn-gold btn-lg" data-go="cadastro">Criar meu acesso grátis ${ic('arrow', 2)}</button>
+          <span class="meta">${ic('shield')}<span>Sem custo · cerca de 3 minutos</span></span>
         </div>
+        <ul class="welcome-offers" aria-label="O que o Lab libera">
+          <li><b>Intelligence</b><span>${CONFIG.intelTrialDays} dias grátis</span></li>
+          <li><b>Radar</b><span>Cadastro gratuito</span></li>
+          <li><b>The Edge</b><span>Inscrição</span></li>
+          <li><b>Agentes e plug and play</b><span>Teste grátis</span></li>
+        </ul>
+        <p class="welcome-alt">É atleta, criador, artista, evento ou mídia? <a class="link" href="detentores/">Entre pelo Lab para detentores ${ic('arrow')}</a></p>
       </div>
       <div class="protocol" aria-label="Como funciona a entrada">
         <div class="protocol-h"><span class="mono">Protocolo de entrada</span><span class="mono" style="color:var(--t-3)">4 etapas</span></div>
         <ol>
           <li><span class="n">01</span><div><b>Cadastro básico</b><small>Quem é você e qual é a empresa.</small></div><span class="tm">30s</span></li>
-          <li><span class="n">02</span><div><b>Raio X da empresa</b><small>8 perguntas rápidas, uma por vez.</small></div><span class="tm">2min</span></li>
-          <li><span class="n">03</span><div><b>O momento da empresa</b><small>Em que fase ela está e um sinal de atenção.</small></div><span class="tm">na hora</span></li>
-          <li><span class="n">04</span><div><b>Entrada no Lab</b><small>Próxima live, dúvidas e anotações liberadas.</small></div><span class="tm">✓</span></li>
+          <li><span class="n">02</span><div><b>Raio X da empresa</b><small>${QUESTIONS.length} perguntas rápidas, uma por vez.</small></div><span class="tm">2min</span></li>
+          <li><span class="n">03</span><div><b>O momento da empresa</b><small>A fase, um sinal de atenção e a dimensão que pede cuidado.</small></div><span class="tm">na hora</span></li>
+          <li><span class="n">04</span><div><b>Entrada no Lab</b><small>Lives, soluções e o próximo passo recomendado para você.</small></div><span class="tm">✓</span></li>
         </ol>
       </div>
     </div></main>
@@ -299,8 +424,8 @@ const ONB = {
   <div class="ob">${obTop(0)}
     <main class="ob-body"><form class="ob-card" id="f-cadastro" novalidate>
       <span class="mono">Etapa 01 · Cadastro</span>
-      <h2>Primeiro, quem está entrando no <span class="serif">Lab</span>?</h2>
-      <p class="sub">O básico para personalizar a leitura e os avisos.</p>
+      <h2>Primeiro, quem está entrando no Lab?</h2>
+      <p class="sub">O básico para personalizar a leitura e indicar as soluções certas para a sua empresa.</p>
       <div class="form-grid">
         <label class="field"><span>Seu nome</span><input class="input" name="nome" required autocomplete="name" placeholder="Nome e sobrenome" value="${esc(p.nome)}"></label>
         <label class="field"><span>E-mail</span><input class="input" name="email" type="email" required autocomplete="email" placeholder="voce@empresa.com" value="${esc(p.email)}"></label>
@@ -312,7 +437,7 @@ const ONB = {
         <button type="button" class="btn btn-ghost" data-go="boas-vindas">${ic('back')}Voltar</button>
         <button type="submit" class="btn btn-gold">Ir para o Raio X ${ic('arrow', 2)}</button>
       </div>
-      <p class="privacy">${ic('shield')}<span>Seus dados ficam com a Relevantia e são usados só para personalizar o Lab.</span></p>
+      <p class="privacy">${ic('shield')}<span>Seus dados ficam com a Relevantia e são usados só para personalizar o Lab e as soluções.</span></p>
     </form></main>
   </div>`;
   },
@@ -351,17 +476,17 @@ const ONB = {
   <div class="ob">${obTop(2)}
     <main class="ob-body"><div class="proc">
       <div class="flask"><svg viewBox="0 0 64 64" fill="none">
-        <defs><clipPath id="fl"><path d="M25 6h14v18l15 26a5 5 0 0 1-4.3 7.5H14.3A5 5 0 0 1 10 50l15-26z"/></clipPath></defs>
+        <defs><linearGradient id="lg-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8A84B"/><stop offset="1" stop-color="#B8860B"/></linearGradient><clipPath id="fl"><path d="M25 6h14v18l15 26a5 5 0 0 1-4.3 7.5H14.3A5 5 0 0 1 10 50l15-26z"/></clipPath></defs>
         <g clip-path="url(#fl)"><rect class="liq" x="0" y="34" width="64" height="30" fill="url(#lg-gold)"/></g>
         <circle class="bub" cx="28" cy="46" r="2" fill="#F2E7C9"/><circle class="bub" cx="36" cy="50" r="1.6" fill="#F2E7C9"/><circle class="bub" cx="32" cy="42" r="1.3" fill="#F2E7C9"/>
         <path d="M25 6h14v18l15 26a5 5 0 0 1-4.3 7.5H14.3A5 5 0 0 1 10 50l15-26z" stroke="#C8A84B" stroke-width="2" stroke-linejoin="round"/><path d="M22 6h20" stroke="#C8A84B" stroke-width="2" stroke-linecap="round"/>
       </svg></div>
-      <h2>Analisando a <span class="serif">${esc(S.profile.empresa)}</span></h2>
+      <h2>Analisando a ${esc(S.profile.empresa)}</h2>
       <ul id="proc-steps">
         <li><i></i>Calibrando pelo porte e segmento</li>
-        <li><i></i>Lendo as respostas</li>
+        <li><i></i>Lendo as seis dimensões</li>
         <li><i></i>Cruzando com o seu maior desafio</li>
-        <li><i></i>Escrevendo a leitura</li>
+        <li><i></i>Escolhendo o próximo passo</li>
       </ul>
     </div></main>
   </div>`,
@@ -369,14 +494,25 @@ const ONB = {
   resultado: () => `<div class="ob">${obTop(3)}<main class="ob-body">${report(false)}</main></div>`,
 };
 
-const VAULT = ['Onde está a alavanca de crescimento da {empresa}', 'O que fazer primeiro, em ordem de impacto', 'Como vocês se comparam a empresas do mesmo porte e segmento'];
+// Botão do Intelligence conforme o estado do teste (usado no laudo, no início e em Soluções)
+function intelCta(cls = 'btn-gold', label) {
+  const t = productStatus('intelligence');
+  if (t.st === 'active') return `<a class="btn ${cls}" href="${esc(CONFIG.urls.intelligence)}" target="_blank" rel="noopener" data-act="open-intel">Abrir o Intelligence ${ic('out', 2)}</a>`;
+  if (t.st === 'ended') return `<a class="btn ${cls}" href="#the-edge" >Continuar com o time The Edge ${ic('arrow', 2)}</a>`;
+  return `<button class="btn ${cls}" data-act="intel-trial">${label || `Testar ${CONFIG.intelTrialDays} dias grátis`} ${ic('arrow', 2)}</button>`;
+}
+
 function vault(compact) {
-  const e = { empresa: S.profile.empresa };
-  return `<div class="vault ${compact ? 'compact' : ''}">
-    <div class="vault-h"><span class="mono">Leitura completa</span><span class="vault-lock">${ic('lock')}Bloqueada</span></div>
-    <ul>${VAULT.map((v, i) => `<li><span class="k">${ic('lock')}</span><div><b>${esc(fill(v, e))}</b><i class="blur" style="width:${[92, 70, 84][i]}%"></i><i class="blur" style="width:${[64, 78, 52][i]}%"></i></div></li>`).join('')}</ul>
-    <a class="btn btn-gold" href="#ecossistema">Quero a leitura completa ${ic('arrow', 2)}</a>
-    <p class="vault-note">Disponível no The Edge, com teste grátis para quem está no Lab.</p>
+  const R = S.raiox, t = productStatus('intelligence');
+  const note = t.st === 'active' ? `Seu teste está ativo: ${plural(t.left, 'dia')} restante${t.left === 1 ? '' : 's'}.`
+    : t.st === 'ended' ? 'Seu teste do Intelligence terminou. O time The Edge pode seguir com você.'
+    : `${CONFIG.intelTrialDays} dias grátis para quem está no Lab.`;
+  return `<div class="vault dark ${compact ? 'compact' : ''}">
+    <div class="vault-h"><span class="mono">As seis dimensões</span><span class="vault-lock">${ic('lock')}No Intelligence</span></div>
+    <ul class="dims-lock">${Object.entries(DIMS).map(([k, d]) => `<li class="${k === R.weak ? 'weak' : ''}"><i class="dot" style="background:var(--dim-${k})"></i><div><b>${d.n}</b><small>${d.d}</small></div>${k === R.weak ? '<span class="tag">Pede atenção</span>' : `<i class="blur" style="width:${34 + (k.length * 7) % 30}px"></i>`}</li>`).join('')}</ul>
+    <p class="vault-txt">A nota de cada dimensão, a alavanca prioritária e o que fazer primeiro ficam no Relevantia Intelligence.</p>
+    ${intelCta('btn-gold btn-block', 'Ver as seis dimensões')}
+    <p class="vault-note">${note}</p>
   </div>`;
 }
 
@@ -387,8 +523,8 @@ function report(inLab) {
   return `
   <article class="paper report">
     <div class="report-h">
-      <div><span class="mono">Laudo · Raio X da empresa</span><h2>A leitura da <span class="serif">${esc(p.empresa)}</span></h2><p>${esc(p.segmento)} · ${esc(p.faturamento || '')} · ${esc(p.time || '')} pessoas</p></div>
-      <div class="stamp"><span>AMOSTRA <b>${R.code}</b></span><span>DATA <b>${d.toLocaleDateString('pt-BR')}</b></span><span>TIPO <b>Leitura rápida</b></span></div>
+      <div><span class="mono">Laudo · Raio X da empresa</span><h2>A leitura da ${esc(p.empresa)}</h2><p>${esc(p.segmento)} · ${esc(p.faturamento || '')} · ${esc(p.time || '')} pessoas</p></div>
+      <div class="stamp"><span>AMOSTRA <b>${R.code}</b></span><span>DATA <b>${d.toLocaleDateString('pt-BR')}</b></span><span>TIPO <b>Leitura gratuita</b></span></div>
     </div>
     <div class="report-body">
       <div>
@@ -397,13 +533,14 @@ function report(inLab) {
         <div class="stages" role="img" aria-label="Momento ${R.moment + 1} de ${MOMENTS.length}: ${M.n}">${MOMENTS.map((m, i) => `<div class="stage ${i < R.moment ? 'past' : i === R.moment ? 'on' : ''}"><i></i><small>${m.n}</small></div>`).join('')}</div>
         <p class="moment-p">${M.p}</p>
         <div class="callout prio"><span class="mono">Um sinal que apareceu nas respostas</span><p>${signal}</p></div>
+        <div class="callout"><span class="mono">Dimensão que pede atenção</span><b>${DIMS[R.weak].n} · ${DIMS[R.weak].d}</b></div>
       </div>
       ${vault(false)}
     </div>
     <div class="report-foot">
-      <p>Esta é uma leitura rápida, feita a partir de 8 respostas. O diagnóstico completo da empresa é feito no <b>The Edge</b>.</p>
+      <p>Esta é a leitura gratuita, feita a partir de ${QUESTIONS.length} respostas. A leitura completa fica no <b>Relevantia Intelligence</b>; quando a empresa precisa de alguém ao lado na decisão, entra o <b>The Edge</b>.</p>
       <div class="acts">${inLab
-        ? `<button class="btn btn-ghost" data-act="redo-rx">${ic('refresh')}Refazer Raio X</button>`
+        ? `<button class="btn btn-outline" data-act="redo-rx">${ic('refresh')}Refazer Raio X</button>`
         : `<button class="btn btn-gold btn-lg" data-act="enter-lab">Entrar no Lab ${ic('arrow', 2)}</button>`}</div>
     </div>
   </article>`;
@@ -413,27 +550,49 @@ function report(inLab) {
 function shell(r, body) {
   const p = S.profile;
   let sec = '';
-  const nav = Object.entries(LAB_VIEWS).map(([k, v]) => {
+  const cur = LAB_VIEWS[r].parent || r;
+  const nav = Object.entries(LAB_VIEWS).filter(([, v]) => !v.hidden).map(([k, v]) => {
     let h = '';
     if (v.sec !== sec) { sec = v.sec; h += `<div class="nav-sec">${sec}</div>`; }
-    const badge = k === 'duvidas' && !myQuestions().length ? '<span class="badge">1</span>' : k === 'votacoes' && S.pollVote == null ? '<span class="badge">1</span>' : '';
-    return h + `<a href="#${k}" class="nav-item ${k === r ? 'on' : ''}" data-tour="nav-${k}">${ic(v.i)}<span>${v.t}</span>${badge}</a>`;
+    const open = PRODUCTS.filter(x => productStatus(x.k).st === 'open').length;
+    const badge = k === 'solucoes' && open ? `<span class="badge">${open}</span>` : k === 'duvidas' && !myQuestions().length ? '<span class="badge">1</span>' : k === 'votacoes' && S.pollVote == null ? '<span class="badge">1</span>' : '';
+    return h + `<a href="#${k}" class="nav-item ${k === cur ? 'on' : ''}" data-tour="nav-${k}">${ic(v.i)}<span>${v.t}</span>${badge}</a>`;
   }).join('');
-  const sub = { inicio: `Olá, ${esc(first(p.nome))}`, lives: 'Agenda e gravações', duvidas: `Para a live #${pad(CONTENT.nextLive.num)}`, votacoes: 'Você decide a pauta', anotacoes: 'Sua leitura de cada live', raiox: 'O momento da sua empresa', ecossistema: 'Produtos Relevantia', perfil: 'Seus dados' }[r];
+  // celular: barra inferior + folha "Mais"
+  const badgeOf = k => k === 'solucoes' ? PRODUCTS.filter(x => productStatus(x.k).st === 'open').length : 0;
+  const tabs = TABBAR.map(k => { const v = LAB_VIEWS[k], b = badgeOf(k);
+    return `<a href="#${k}" class="tab ${k === cur ? 'on' : ''}" data-tour="nav-${k}">${ic(v.i)}<span>${v.short || v.t}</span>${b ? `<i class="dot-badge">${b}</i>` : ''}</a>`; }).join('');
+  const moreKeys = Object.keys(LAB_VIEWS).filter(k => !LAB_VIEWS[k].hidden && !TABBAR.includes(k));
+  const moreOn = moreKeys.includes(cur);
+  const pend = k => k === 'duvidas' ? !myQuestions().length : k === 'votacoes' ? S.pollVote == null : false;
+  const moreItems = moreKeys.map(k => `<a href="#${k}" class="${k === cur ? 'on' : ''}" data-tour="nav-${k}">${ic(LAB_VIEWS[k].i)}<span>${LAB_VIEWS[k].t}</span>${pend(k) ? '<i class="dot-badge">1</i>' : ''}</a>`).join('');
+  const sub = { inicio: `Olá, ${esc(first(p.nome))}`, solucoes: 'Ecossistema Relevantia', ferramentas: 'Teste grátis', lives: 'Audiência S/A · agenda e gravações', duvidas: `Para a live #${pad(CONTENT.nextLive.num)}`, votacoes: 'Você decide a pauta', anotacoes: 'Sua leitura de cada live', raiox: 'O momento da sua empresa', perfil: 'Seus dados', 'the-edge': 'Soluções · consultoria' }[r];
+  const crumb = LAB_VIEWS[r].parent ? `<a href="#${LAB_VIEWS[r].parent}">${LAB_VIEWS[LAB_VIEWS[r].parent].t}</a><span class="sep">/</span>` : '';
   return `<div class="glow"></div><div class="grid-bg"></div>
   <div class="shell">
     <aside class="side">
-      <a href="#inicio" class="logo">${mark()}Relevantia<span class="lab-tag">LAB</span></a>
+      <a href="#inicio" class="side-logo">${logo()}</a>
       <nav class="nav" aria-label="Lab">${nav}</nav>
+      <span class="side-plan">${ic('shield')}<span>Plano gratuito</span></span>
       <a href="#perfil" class="side-foot"><span class="avatar">${esc(initials(p.nome))}</span><span class="who"><b>${esc(p.nome)}</b><small>${esc(p.empresa)}</small></span></a>
     </aside>
     <main class="main">
-      <div class="top">
-        <div class="crumb"><span class="mono">${sub}</span><h1>${LAB_VIEWS[r].t}</h1></div>
-        <div class="top-acts"><button class="icon-btn" data-act="tour" data-tour="help" aria-label="Ver o tutorial" title="Tutorial">${ic('help')}</button></div>
+      <div class="topbar">
+        <a href="#inicio" class="top-logo" aria-label="Relevantia Lab, início"><img src="assets/logos/mark-1.png" alt="" width="26" height="26"></a>
+        <nav class="breadcrumb" aria-label="Você está em"><span class="home">Relevantia Lab</span><span class="sep home">/</span>${crumb}<span class="curr">${LAB_VIEWS[r].t}</span></nav>
+        <div class="top-acts"><span class="plan-badge"><i></i>Plano gratuito</span><button class="icon-btn" data-act="tour" data-tour="help" aria-label="Ver o tutorial" title="Tutorial">${ic('help')}</button></div>
       </div>
+      <div class="top"><span class="mono">${sub}</span><h1>${LAB_VIEWS[r].t}</h1></div>
       <div class="view">${body}</div>
     </main>
+    <nav class="tabbar" aria-label="Lab">${tabs}<button type="button" class="tab ${moreOn ? 'on' : ''}" data-act="more" aria-expanded="false" aria-controls="more-sheet">${ic('dots', 2.4)}<span>Mais</span>${moreKeys.some(pend) ? '<i class="dot-badge"></i>' : ''}</button></nav>
+    <div class="more" id="more-sheet" hidden>
+      <div class="more-bg" data-act="more-close"></div>
+      <div class="more-panel" role="dialog" aria-modal="true" aria-label="Mais opções">
+        <div class="more-h"><a href="#perfil" class="who-mini"><span class="avatar">${esc(initials(p.nome))}</span><span><b>${esc(p.nome)}</b><small>${esc(p.empresa)} · Plano gratuito</small></span></a><button type="button" class="icon-btn" data-act="more-close" aria-label="Fechar">${ic('chev')}</button></div>
+        <div class="more-list">${moreItems}<a href="#" data-act="tour">${ic('help')}<span>Ver o tutorial</span></a></div>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -442,7 +601,7 @@ const myQuestions = () => S.questions.filter(q => q.live === CONTENT.nextLive.nu
 
 function nextLiveCard() {
   const n = CONTENT.nextLive, d = nextLiveStart(), live = isLiveNow();
-  return `<section class="card next-live" data-tour="next-live">
+  return `<section class="card next-live dark" data-tour="next-live">
     <div class="nl-top"><span class="live-dot"></span>${live ? 'Ao vivo agora' : 'Próxima live'} · #${pad(n.num)}</div>
     <h2>${esc(n.title)}</h2>
     <p class="when">${fmtDay(d)}, às ${fmtHour(d)} · ao vivo no YouTube · ${esc(n.guest)}</p>
@@ -464,19 +623,78 @@ function weekTasks() {
   ];
 }
 
+/* cards de solução */
+function productCta(x, block) {
+  const st = productStatus(x.k).st, bl = block ? ' btn-block' : '';
+  if (x.k === 'intelligence') return intelCta('btn-gold' + bl);
+  if (x.k === 'radar') return st === 'active'
+    ? `<a class="btn btn-gold${bl}" href="${esc(CONFIG.urls.radar)}" target="_blank" rel="noopener">Acessar o Radar ${ic('out', 2)}</a>`
+    : `<a class="btn btn-gold${bl}" href="#solucoes" data-act="radar-pick">Criar conta grátis ${ic('arrow', 2)}</a>`;
+  return st === 'active'
+    ? `<a class="btn btn-ghost${bl}" href="#the-edge">Ver inscrição</a>`
+    : `<a class="btn btn-gold${bl}" href="#the-edge">Quero me inscrever ${ic('arrow', 2)}</a>`;
+}
+function statusLine(x) {
+  const t = productStatus(x.k);
+  if (x.k === 'intelligence') return t.st === 'active' ? `Teste ativo · ${plural(t.left, 'dia')} restante${t.left === 1 ? '' : 's'}` : t.st === 'ended' ? 'Teste encerrado' : '';
+  if (x.k === 'radar') return t.st === 'active' ? `Cadastro iniciado · ${esc((RADAR_ROLES.find(r => r.k === S.radar.role) || {}).l || '').replace('Sou ', '')}` : '';
+  return t.st === 'active' ? 'Inscrição enviada · retorno em até 48h úteis' : '';
+}
+function productCard(x, featured) {
+  const line = statusLine(x), st = productStatus(x.k).st;
+  const pick = x.k === 'radar' && ui.radarPick && st === 'open';
+  return `<section class="card prod-card ${featured ? 'featured' : ''} ${st}" id="p-${x.k}">
+    <div class="pc-top"><span class="ic">${ic(x.icon)}</span><span class="offer">${esc(x.offer)}</span></div>
+    <span class="mono">${featured ? 'Recomendado para você' : esc(x.layer)}</span>
+    <h3>${esc(x.name)}</h3>
+    <p class="pc-title">${esc(x.title)}</p>
+    <p>${esc(x.desc)}</p>
+    <ul class="checks">${x.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+    ${line ? `<span class="status ${st}"><i></i>${line}</span>` : ''}
+    ${pick ? `<div class="roles-pick" role="group" aria-label="Como você entra no Radar">${RADAR_ROLES.map(r => `<a href="${esc(r.url())}" target="_blank" rel="noopener" data-act="radar-signup" data-role="${r.k}"><b>${r.l}</b><small>${r.d}</small>${ic('out')}</a>`).join('')}</div>` : productCta(x, true)}
+  </section>`;
+}
+function solRow(x) {
+  const line = statusLine(x), st = productStatus(x.k).st;
+  const to = x.k === 'edge' ? '#the-edge' : '#solucoes';
+  return `<a class="sol-row ${st}" href="${to}" ${x.k === 'intelligence' && st === 'open' ? 'data-act="intel-trial"' : ''}><span class="ic">${ic(x.icon)}</span><span class="t"><b>${esc(x.short)}</b><small>${line || esc(x.offer)}</small></span>${st === 'active' ? `<span class="ck on">${ic('check', 3)}</span>` : ic('chev').replace('<svg', '<svg class="go"')}</a>`;
+}
+function toolCard(t) {
+  const s = trialStatus(t.k, t.days);
+  return `<section class="card prod-card ${s.st}" style="--dm-cor:var(--dim-${t.dim})">
+    <div class="pc-top"><span class="ic">${ic(t.icon)}</span><span class="offer">${TOOL_TYPE[t.type]}</span></div>
+    <span class="mono">${DIMS[t.dim].n} · ${esc(DIMS[t.dim].d)}</span>
+    <h3>${esc(t.name)}</h3>
+    <p>${esc(t.desc)}</p>
+    <dl class="how"><dt>Como funciona</dt><dd>${esc(t.how)}</dd><dt>Entrega</dt><dd>${esc(t.out)}</dd></dl>
+    ${s.st === 'active' ? `<span class="status active"><i></i>Teste ativo · ${plural(s.left, 'dia')} restante${s.left === 1 ? '' : 's'}</span><a class="btn btn-ghost btn-block" href="${esc(t.url)}" target="_blank" rel="noopener" data-act="open-tool" data-k="${t.k}">Abrir ${esc(t.name)} ${ic('out')}</a>`
+      : s.st === 'ended' ? `<span class="status ended"><i></i>Teste encerrado</span><a class="btn btn-ghost btn-block" href="#the-edge">Continuar com o The Edge</a>`
+      : `<button class="btn btn-gold btn-block" data-act="tool-trial" data-k="${t.k}">Testar ${plural(t.days, 'dia')} grátis</button>`}
+  </section>`;
+}
+
 const VIEWS = {
   inicio: () => {
     const R = S.raiox, tasks = weekTasks(), done = tasks.filter(t => t.done).length;
     const d = nextLiveStart(), prev = new Date(d); prev.setDate(prev.getDate() - 1);
+    const rec = recommend(), rp = prod(rec.k);
+    const it = productStatus('intelligence');
     const avisos = [
-      { i: 'play', t: `Live #${pad(CONTENT.nextLive.num)} ${fmtDay(d).split(',')[0]}, às ${fmtHour(d)}`, p: 'O link de acesso fica no card ao lado e chega por e-mail uma hora antes.', m: 'Lembrete', n: true },
+      { i: 'play', t: `Live #${pad(CONTENT.nextLive.num)} ${fmtDay(d).split(',')[0]}, às ${fmtHour(d)}`, p: 'O link de acesso fica no card da próxima live e chega por e-mail uma hora antes.', m: 'Audiência S/A', n: true },
+      it.st === 'active'
+        ? { i: 'intel', t: `Seu teste do Intelligence termina em ${plural(it.left, 'dia')}`, p: 'Aproveite para ver a nota das seis dimensões e a alavanca prioritária.', m: 'Intelligence', n: true }
+        : { i: 'intel', t: `Intelligence liberado por ${CONFIG.intelTrialDays} dias para quem está no Lab`, p: 'A leitura completa do seu Raio X, nas seis dimensões.', m: 'Soluções' },
+      { i: 'bolt', t: 'Agentes e plug and play para testar grátis', p: TOOLS.map(t => t.name).join(' · '), m: 'Soluções' },
       { i: 'ask', t: `Dúvidas para a live #${pad(CONTENT.nextLive.num)} até ${fmtDay(prev).split(',')[0]}`, p: 'As mais votadas entram primeiro na pauta.', m: 'Prazo' },
-      { i: 'vote', t: `Votação aberta: ${CONTENT.poll.title.toLowerCase()}`, p: 'Cinco temas na disputa. O mais votado vira a próxima live.', m: 'Votação', n: S.pollVote == null },
-      { i: 'news', t: 'Novidade no ecossistema: teste o Radar por 7 dias', p: 'Os movimentos do mercado do seu segmento, filtrados toda semana.', m: 'Ecossistema' },
-      { i: 'file', t: `Gravação e material da live #${pad(CONTENT.lives[0].num)} disponíveis`, p: CONTENT.lives[0].title, m: 'Lives' },
+      { i: 'file', t: `Gravação da live #${pad(CONTENT.lives[0].num)} disponível`, p: CONTENT.lives[0].title, m: 'Lives' },
     ];
     return `<div class="grid g-home">
       <div class="grid" style="align-content:start">
+        <section class="card next-step dark" data-tour="next-step">
+          <div class="card-h"><span class="mono">Próximo passo para a ${esc(S.profile.empresa)}</span><span class="offer">${esc(rp.offer)}</span></div>
+          <div class="ns-body"><span class="ic">${ic(rp.icon)}</span><div><h2>${esc(rp.name)}</h2><p>${esc(rec.why)}</p></div></div>
+          <div class="nl-acts">${productCta(rp)}<a class="btn btn-ghost" href="#solucoes">Ver todas as soluções</a></div>
+        </section>
         ${nextLiveCard()}
         <section class="card" data-tour="week">
           <div class="card-h"><h3>Sua semana no Lab</h3><span class="mono">${done}/${tasks.length} feitos</span></div>
@@ -485,16 +703,20 @@ const VIEWS = {
         </section>
       </div>
       <div class="grid" style="align-content:start">
+        <section class="card" data-tour="my-solutions">
+          <div class="card-h"><h3>Suas soluções</h3><a class="link small" href="#solucoes">Ver ${ic('arrow')}</a></div>
+          <div class="sol-list">${PRODUCTS.map(x => solRow(x)).join('')}</div>
+        </section>
         <section class="card">
           <div class="card-h"><h3>Raio X da ${esc(S.profile.empresa)}</h3><a class="link small" href="#raiox">Ver laudo ${ic('arrow')}</a></div>
           <span class="mono">Momento</span>
           <div class="moment-mini">${MOMENTS[R.moment].n}</div>
           <div class="stages mini-stages">${MOMENTS.map((m, i) => `<div class="stage ${i < R.moment ? 'past' : i === R.moment ? 'on' : ''}"><i></i></div>`).join('')}</div>
-          <p class="small muted">${R.signal != null ? QUESTIONS[R.signal].s : NO_SIGNAL}</p>
-          <a class="locked-row" href="#ecossistema">${ic('lock')}<span>Alavanca, prioridades e comparação com o segmento</span><b>Leitura completa</b></a>
+          <p class="small muted">Dimensão que pede atenção: <b>${DIMS[R.weak].n}</b>. ${R.signal != null ? QUESTIONS[R.signal].s : NO_SIGNAL}</p>
+          <a class="locked-row" href="#solucoes" data-act="${it.st === 'open' ? 'intel-trial' : ''}">${ic('lock')}<span>Nota das seis dimensões, alavanca e prioridades</span><b>Intelligence</b></a>
         </section>
         <section class="card">
-          <div class="card-h"><h3>Avisos</h3><span class="mono">${ic('bell').replace('<svg', '<svg style="width:14px;height:14px;display:inline;vertical-align:-2px"')}</span></div>
+          <div class="card-h"><h3>Avisos</h3></div>
           <div class="feed">${avisos.map(a => `<div class="feed-item ${a.n ? 'new' : ''}"><span class="ic">${ic(a.i)}</span><div><span class="mono">${a.m}</span><b>${esc(a.t)}</b><p>${esc(a.p)}</p></div></div>`).join('')}</div>
         </section>
       </div>
@@ -596,18 +818,62 @@ const VIEWS = {
 
   raiox: () => report(true),
 
-  ecossistema: () => `<p class="muted" style="max-width:640px;margin-bottom:22px">O Lab é a porta de entrada do ecossistema Relevantia. Como participante, você pode testar os outros produtos sem custo.</p>
-    <div class="grid g-3">${CONTENT.trials.map(t => {
-      const on = S.trials[t.k];
-      const left = on ? Math.max(0, t.days - Math.floor((Date.now() - on) / 864e5)) : 0;
-      return `<section class="card trial ${t.featured ? 'featured' : ''} ${on ? 'active' : ''}">
-        <div style="display:flex;justify-content:space-between;align-items:center"><span class="ic">${ic(t.icon)}</span>${t.featured ? '<span class="mono">Continua o seu Raio X</span>' : ''}</div>
-        <h3>${t.name}</h3><p>${esc(t.desc)}</p>
-        <ul>${t.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-        ${on ? `<span class="status"><i></i>Teste ativo · ${left} dia${left === 1 ? '' : 's'} restante${left === 1 ? '' : 's'}</span><a class="btn btn-ghost" href="${esc(CONFIG.trialUrls[t.k])}" target="_blank" rel="noopener" data-act="open-trial" data-k="${t.k}">Abrir ${t.name} ${ic('out')}</a>`
-              : `<button class="btn ${t.featured ? 'btn-gold' : 'btn-ghost'}" data-act="trial" data-k="${t.k}">Testar ${t.days} dias grátis</button>`}
-      </section>`;
-    }).join('')}</div>`,
+  solucoes: () => {
+    const rec = recommend();
+    return `<div class="sol-intro">
+      <p class="lead">O Lab é gratuito e é a porta de entrada da Relevantia. Daqui você testa o Intelligence, cria sua conta no Radar e se inscreve no The Edge. O próximo passo recomendado para a ${esc(S.profile.empresa)} vem primeiro.</p>
+    </div>
+    <ol class="flow" aria-label="Como as soluções se conectam">
+      <li><span class="mono">01 · Formação</span><b>Lab + Audiência S/A</b><small>Gratuito</small></li>
+      <li><span class="mono">02 · Leitura</span><b>Intelligence</b><small>${CONFIG.intelTrialDays} dias grátis</small></li>
+      <li><span class="mono">03 · Estratégia</span><b>The Edge</b><small>Inscrição</small></li>
+      <li><span class="mono">04 · Operação</span><b>Radar</b><small>Cadastro gratuito</small></li>
+    </ol>
+    <div class="grid g-3 products">${PRODUCTS.slice().sort((x, y) => (y.k === rec.k) - (x.k === rec.k)).map(x => productCard(x, x.k === rec.k)).join('')}</div>
+    <a class="tools-banner" href="#ferramentas">${ic('bolt')}<div><b>Agentes e plug and play</b><span>${TOOLS.map(t => t.name).join(' · ')}. Teste grátis por ${plural(TOOLS[0].days, 'dia')}.</span></div>${ic('chev')}</a>`;
+  },
+
+  ferramentas: () => `<p class="lead" style="margin-bottom:24px">Ferramentas prontas da metodologia The Edge. Os agentes conversam com você e entregam um documento; o plug and play é um formato pronto para usar, sem implantação.</p>
+    <div class="grid g-3">${TOOLS.map(toolCard).join('')}</div>
+    <p class="small muted" style="margin-top:22px">Outros agentes e plug and play chegam com o Intelligence e com o The Edge. <a class="link" href="#solucoes">Ver as soluções ${ic('arrow')}</a></p>`,
+
+  'the-edge': () => {
+    const p = S.profile, E = S.edge;
+    if (E) return `<section class="card edge-done">
+      <span class="ic">${ic('check', 2.4)}</span>
+      <span class="mono">Inscrição recebida · ${new Date(E.at).toLocaleDateString('pt-BR')}</span>
+      <h2>O time The Edge fala com você em até 48h úteis.</h2>
+      <p class="muted">Formato de interesse: <b>${esc(E.formato)}</b>. A conversa começa pelo brief com a liderança e usa o Raio X da ${esc(p.empresa)} como ponto de partida.</p>
+      <div class="nl-acts">${E.mailto ? `<a class="btn btn-ghost" href="${esc(E.mailto)}">${ic('send')}Abrir o e-mail de novo</a>` : ''}<a class="btn btn-ghost" href="#solucoes">Voltar para as soluções</a></div>
+    </section>`;
+    const leader = ['Dono(a) / sócio(a)', 'CEO / diretor(a)'].includes(p.cargo);
+    return `<div class="grid g-wide">
+      <form class="card" id="f-edge" novalidate>
+        <div class="card-h"><h3>Inscrição no The Edge</h3><span class="mono">Leva 1 minuto</span></div>
+        <p class="small muted" style="margin-bottom:18px">Seu perfil e o Raio X da ${esc(p.empresa)} já vão junto. Só falta contar o que você quer resolver.</p>
+        <div class="form-grid">
+          <label class="field full"><span>Formato de interesse</span><select class="input" name="formato" required>${EDGE_FORMATS.map(f => `<option>${esc(f)}</option>`).join('')}</select></label>
+          <label class="field full"><span>O que você quer resolver agora?</span><textarea class="input" name="objetivo" required placeholder="Ex.: decidir onde investir em marca no próximo semestre">${esc(p.desafioTxt || p.desafio || '')}</textarea></label>
+          <label class="field"><span>WhatsApp (opcional)</span><input class="input" name="whatsapp" type="tel" autocomplete="tel" placeholder="(11) 90000-0000"></label>
+          <label class="field"><span>Quem decide</span><select class="input" name="decisor">${['Eu decido', 'Decido junto com sócios', 'Levo para quem decide'].map((o, i) => `<option ${(leader ? i === 0 : i === 2) ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
+          <label class="check full"><input type="checkbox" name="consent" required><span>Concordo em ser contatado pelo time Relevantia.</span></label>
+        </div>
+        <div class="f-actions">
+          <a class="btn btn-ghost" href="#solucoes">${ic('back')}Voltar</a>
+          <button class="btn btn-gold" type="submit">Enviar inscrição ${ic('arrow', 2)}</button>
+        </div>
+      </form>
+      <section class="card">
+        <div class="card-h"><h3>Como funciona</h3></div>
+        <div class="feed">
+          <div class="feed-item"><span class="ic">01</span><div><b>Brief</b><p>Conversa com a liderança sobre o negócio, as unidades, os canais e o momento da empresa.</p></div></div>
+          <div class="feed-item"><span class="ic">02</span><div><b>Raio X</b><p>Leitura nas seis dimensões do Intelligence, com a alavanca prioritária.</p></div></div>
+          <div class="feed-item"><span class="ic">03</span><div><b>Plano contínuo</b><p>Prioridades, donos e prazos acompanhados de perto pelo time The Edge.</p></div></div>
+          <div class="feed-item"><span class="ic">04</span><div><b>Execução</b><p>Quando o caminho passa por patrocínios e parcerias, a operação segue no Radar.</p></div></div>
+        </div>
+      </section>
+    </div>`;
+  },
 
   perfil: () => {
     const p = S.profile;
@@ -627,7 +893,7 @@ const VIEWS = {
           <label class="field"><span>Maior desafio hoje</span><select class="input" name="desafio">${opt(ch, p.desafio)}</select></label>
           <label class="field full"><span>Detalhe do desafio</span><textarea class="input" name="desafioTxt" style="min-height:80px">${esc(p.desafioTxt)}</textarea></label>
         </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:20px"><button class="btn btn-gold" type="submit">Salvar alterações</button></div>
+        <div class="f-actions end"><button class="btn btn-gold" type="submit">Salvar alterações</button></div>
       </form>
       <section class="card">
         <div class="card-h"><h3>Ações</h3></div>
@@ -655,7 +921,7 @@ function noteHTML(n) {
       <div class="ai-h"><span class="ai-ic">${ic('spark')}</span><b>Leitura rápida</b><span class="mono">1 por live</span></div>
       <div class="ai-sec"><p>${esc(a.leitura)}</p></div>
       <div class="ai-sec"><span class="mono">Leve para a próxima live</span><div class="ai-q"><p>“${esc(a.pergunta)}”</p><button class="btn btn-ghost btn-sm" data-act="ask-from-ai" data-id="${n.id}" ${n.asked ? 'disabled' : ''}>${n.asked ? ic('check') + 'Enviada' : ic('send') + 'Enviar como dúvida'}</button></div></div>
-      <a class="locked-row on-paper" href="#ecossistema">${ic('lock')}<span>Próximo passo para a ${esc(S.profile.empresa)} e ligação com o diagnóstico completo</span><b>The Edge</b></a>
+      <a class="locked-row on-paper" href="#solucoes">${ic('lock')}<span>Próximo passo para a ${esc(S.profile.empresa)} e ligação com as seis dimensões</span><b>Intelligence</b></a>
     </div>`;
   }
   const canAI = !n.ai && !busy && !aiUsed(n.live);
@@ -664,7 +930,7 @@ function noteHTML(n) {
     <div class="h"><span class="mono" style="color:var(--t-3)">${d.toLocaleDateString('pt-BR')} · ${pad(d.getHours())}:${pad(d.getMinutes())}</span><button class="icon-btn" style="width:32px;height:32px" data-act="del-note" data-id="${n.id}" aria-label="Apagar anotação">${ic('trash')}</button></div>
     <div class="txt">${esc(n.text)}</div>
     ${canAI ? `<div class="acts"><button class="btn btn-gold btn-sm" data-act="ai" data-id="${n.id}">${ic('spark')}Gerar leitura rápida</button></div>` : ''}
-    ${usedNote ? `<a class="locked-row" href="#ecossistema" style="margin-top:14px">${ic('lock')}<span>A leitura com IA desta live já foi usada. No The Edge, toda anotação ganha leitura.</span><b>Ver</b></a>` : ''}
+    ${usedNote ? `<a class="locked-row" href="#solucoes" style="margin-top:14px">${ic('lock')}<span>A leitura com IA desta live já foi usada. No chat do Intelligence, toda anotação ganha leitura.</span><b>Intelligence</b></a>` : ''}
     ${ai}
   </article>`;
 }
@@ -698,15 +964,21 @@ function localRead(note) {
 }
 
 /* ============ TUTORIAL ============ */
-const TOUR = () => [
-  { t: `Bem-vindo ao Lab, ${first(S.profile.nome)}`, p: `Seu perfil está completo e o Raio X da ${S.profile.empresa} já está salvo. Em um minuto eu te mostro onde fica cada coisa.` },
-  { s: '[data-tour="next-live"]', t: 'Próxima live', p: 'Data, contagem regressiva e link de acesso. Adicione direto na sua agenda para não perder.' },
+// primeiro elemento visível com o seletor (o mesmo data-tour existe na sidebar e na barra do celular)
+const visible = sel => $$(sel).find(el => { const b = el.getBoundingClientRect(); return b.width > 0 && b.height > 0; }) || null;
+const TOUR = () => TOUR_ALL().filter(st => !st.s || visible(st.s));
+const TOUR_ALL = () => [
+  { t: `Bem-vindo ao Lab, ${first(S.profile.nome)}`, p: `O Lab é gratuito e é a sua porta de entrada para a Relevantia. O Raio X da ${S.profile.empresa} já está salvo. Em um minuto eu te mostro onde fica cada coisa.` },
+  { s: '[data-tour="next-step"]', t: 'Seu próximo passo', p: 'A solução que mais combina com o momento da empresa, escolhida a partir do Raio X.' },
+  { s: '[data-tour="nav-solucoes"]', t: 'Soluções', p: `Intelligence com ${CONFIG.intelTrialDays} dias grátis, cadastro gratuito no Radar e inscrição no The Edge.` },
+  { s: '[data-tour="nav-ferramentas"]', t: 'Agentes e plug and play', p: 'Ferramentas prontas da metodologia The Edge para testar sem custo.' },
+  { s: '[data-tour="next-live"]', t: 'Audiência S/A', p: 'A live semanal do Isaac, com data, contagem regressiva e link de acesso. Adicione na agenda para não perder.' },
   { s: '[data-tour="nav-duvidas"]', t: 'Dúvidas', p: 'Mande perguntas para a próxima live e vote nas dos outros participantes. As mais votadas entram primeiro.' },
   { s: '[data-tour="nav-votacoes"]', t: 'Votações', p: 'Você escolhe o tema das próximas lives.' },
   { s: '[data-tour="nav-anotacoes"]', t: 'Anotações + IA', p: 'Anote durante ou depois da live. Em cada live, uma anotação ganha uma leitura rápida da IA para a sua empresa.' },
-  { s: '[data-tour="nav-raiox"]', t: 'Seu Raio X', p: 'O momento da empresa e um sinal de atenção. A leitura completa fica no The Edge.' },
-  { s: '[data-tour="nav-ecossistema"]', t: 'Ecossistema', p: 'Testes gratuitos dos outros produtos da Relevantia. É aqui que fica a leitura completa da sua empresa.' },
-  { s: '[data-tour="week"]', t: 'Sua semana no Lab', p: 'Quatro passos para aproveitar cada live. Um bom lugar para começar.' },
+  { s: '[data-tour="nav-raiox"]', t: 'Seu Raio X', p: 'O momento da empresa, um sinal de atenção e a dimensão que pede cuidado. As notas das seis dimensões ficam no Intelligence.' },
+  // só no celular (a barra inferior não aparece no computador, então o passo é pulado)
+  { s: '[data-act="more"]', t: 'Mais', p: 'Dúvidas, votações, anotações, o Raio X e o seu perfil ficam aqui.' },
   { s: '[data-tour="help"]', t: 'Tutorial a qualquer hora', p: 'Este botão abre o tour de novo sempre que precisar.' },
 ];
 let tourI = -1;
@@ -722,9 +994,9 @@ function endTour(silent) {
 function drawTour() {
   const steps = TOUR(), st = steps[tourI];
   let el = $('.tour');
-  if (!el) { el = document.createElement('div'); el.className = 'tour'; el.innerHTML = '<div class="tour-block"></div><div class="tour-spot"></div><div class="tour-tip" role="dialog" aria-modal="true"></div>'; document.body.appendChild(el); }
+  if (!el) { el = document.createElement('div'); el.className = 'tour dark'; el.innerHTML = '<div class="tour-block"></div><div class="tour-spot"></div><div class="tour-tip" role="dialog" aria-modal="true"></div>'; document.body.appendChild(el); }
   const spot = $('.tour-spot', el), tip = $('.tour-tip', el);
-  const target = st.s ? $(st.s) : null;
+  const target = st.s ? visible(st.s) : null;
   tip.innerHTML = `<div class="h"><span class="mono">Tutorial · ${tourI + 1}/${steps.length}</span><div class="dots">${steps.map((_, i) => `<i class="${i === tourI ? 'on' : ''}"></i>`).join('')}</div></div>
     <h3>${esc(st.t)}</h3><p>${esc(st.p)}</p>
     <div class="f"><button class="skip" data-t="skip">${tourI === steps.length - 1 ? '' : 'Pular tutorial'}</button>
@@ -759,6 +1031,15 @@ document.addEventListener('click', e => {
 });
 addEventListener('resize', () => { if ($('.tour') && drawTour.place) drawTour.place(); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && $('.tour')) endTour(); });
+
+/* folha "Mais" (celular) */
+function toggleMore(force) {
+  const m = $('#more-sheet'), b = $('[data-act="more"]'); if (!m) return;
+  const open = force ?? m.hidden;
+  m.hidden = !open; b && b.setAttribute('aria-expanded', open);
+  document.body.classList.toggle('no-scroll', open);
+}
+addEventListener('keydown', e => { if (e.key === 'Escape') toggleMore(false); });
 
 /* ============ PÓS-RENDER ============ */
 const AFTER = {
@@ -831,7 +1112,9 @@ app.addEventListener('click', e => {
     }
     case 'enter-lab': S.tourDone = false; save(); go('inicio'); break;
     case 'redo-rx': e.preventDefault(); S.rxDraft = { i: 0, a: Object.assign({}, S.raiox && S.raiox.answers), other: S.profile.desafioTxt || '' }; S.raiox = null; save(); go('raio-x'); break;
-    case 'tour': e.preventDefault(); startTour(); break;
+    case 'tour': e.preventDefault(); toggleMore(false); startTour(); break;
+    case 'more': toggleMore(); break;
+    case 'more-close': e.preventDefault(); toggleMore(false); break;
     case 'live-link': if (CONFIG.live.url === '#') { e.preventDefault(); toast('O link da live entra aqui assim que for publicado.'); } break;
     case 'rec': if (CONFIG.live.channelUrl === '#') { e.preventDefault(); toast('O link da gravação entra aqui.'); } break;
     case 'mat': e.preventDefault(); toast('O material desta live entra aqui.'); break;
@@ -852,8 +1135,18 @@ app.addEventListener('click', e => {
       S.questions.push({ id: uid(), text: n.ai.pergunta, at: Date.now(), live: CONTENT.nextLive.num });
       n.asked = true; save(); render(); toast(`Dúvida enviada para a live #${pad(CONTENT.nextLive.num)}.`); break;
     }
-    case 'trial': { const t = CONTENT.trials.find(x => x.k === b.dataset.k); S.trials[t.k] = Date.now(); save(); render(); toast(`Teste do ${t.name} ativado por ${t.days} dias.`); break; }
-    case 'open-trial': if (CONFIG.trialUrls[b.dataset.k] === '#') { e.preventDefault(); toast('O acesso ao produto entra aqui.'); } break;
+    case 'intel-trial': {
+      e.preventDefault();
+      if (!S.trials.intelligence) { S.trials.intelligence = Date.now(); save(); }
+      if (route === 'resultado') render(); else go('solucoes');
+      toast(`Intelligence liberado por ${CONFIG.intelTrialDays} dias.` + (CONFIG.urls.intelligence === '#' ? ' O acesso chega no seu e-mail.' : ''));
+      break;
+    }
+    case 'open-intel': if (CONFIG.urls.intelligence === '#') { e.preventDefault(); toast(`O acesso ao Intelligence chega em ${S.profile.email}.`); } break;
+    case 'radar-pick': e.preventDefault(); ui.radarPick = true; if (route === 'solucoes') render(); else go('solucoes'); setTimeout(() => { const c = $('#p-radar'); c && c.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 60); break;
+    case 'radar-signup': { const r = RADAR_ROLES.find(x => x.k === b.dataset.role); S.radar = { role: r.k, at: Date.now() }; ui.radarPick = false; save(); setTimeout(render, 50); toast('Cadastro do Radar aberto em outra aba.'); break; }
+    case 'tool-trial': { const t = tool(b.dataset.k); S.trials[t.k] = Date.now(); save(); render(); toast(`${t.name} liberado por ${plural(t.days, 'dia')}.` + (t.url === '#' ? ' O acesso chega no seu e-mail.' : '')); break; }
+    case 'open-tool': if (tool(b.dataset.k).url === '#') { e.preventDefault(); toast(`O acesso chega em ${S.profile.email}.`); } break;
     case 'export': {
       e.preventDefault();
       const txt = JSON.stringify(S, null, 2);
@@ -883,6 +1176,23 @@ app.addEventListener('submit', e => {
     save();
     if (f.id === 'f-cadastro') go(S.raiox ? 'inicio' : 'raio-x');
     else { render(); toast('Perfil atualizado.'); }
+  }
+  if (f.id === 'f-edge') {
+    const bad = $$('[required]', f).find(el => el.type === 'checkbox' ? !el.checked : !el.value.trim());
+    if (bad) { bad.focus(); toast(bad.type === 'checkbox' ? 'Marque a autorização de contato.' : 'Conte o que você quer resolver.'); return; }
+    const p = S.profile, R = S.raiox;
+    const E = { at: Date.now(), formato: data.formato, objetivo: String(data.objetivo).trim(), whatsapp: String(data.whatsapp || '').trim(), decisor: data.decisor };
+    const text = [`Inscrição no The Edge pelo Relevantia Lab`, '', `Nome: ${p.nome}`, `E-mail: ${p.email}`, E.whatsapp ? `WhatsApp: ${E.whatsapp}` : null, `Empresa: ${p.empresa} · ${p.segmento}`, `Cargo: ${p.cargo} (${E.decisor})`, `Faturamento: ${p.faturamento || '-'} · Time: ${p.time || '-'}`, `Formato de interesse: ${E.formato}`, '', `O que quer resolver: ${E.objetivo}`, '', R ? `Raio X: ${MOMENTS[R.moment].n} · dimensão que pede atenção: ${DIMS[R.weak].n}` : null].filter(x => x != null).join('\n');
+    if (CONFIG.edgeEndpoint) {
+      fetch(CONFIG.edgeEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ inscricao: E, perfil: p, raiox: R }) }).catch(() => {});
+    } else {
+      E.mailto = CONFIG.contact.whatsapp
+        ? `https://wa.me/${CONFIG.contact.whatsapp}?text=${encodeURIComponent(text)}`
+        : `mailto:${CONFIG.contact.email}?subject=${encodeURIComponent('Inscrição no The Edge · ' + p.empresa)}&body=${encodeURIComponent(text)}`;
+      if (CONFIG.contact.whatsapp) window.open(E.mailto, '_blank', 'noopener'); else location.href = E.mailto;
+    }
+    S.edge = E; save(); render();
+    toast(CONFIG.edgeEndpoint ? 'Inscrição enviada.' : 'Mensagem pronta. Confirme o envio na janela que abrimos.');
   }
   if (f.id === 'f-q') {
     const t = (data.q || '').trim(); if (t.length < 8) { toast('Escreva a pergunta com um pouco mais de detalhe.'); return; }

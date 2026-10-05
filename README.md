@@ -1,38 +1,48 @@
-# Lab Relevantia · V1 essencial
+# Relevantia Lab
 
-A plataforma de quem acompanha as lives semanais do Isaac. Esta versão entrega uma amostra do valor de propósito: mostra o suficiente para a pessoa querer a leitura completa, que fica no The Edge. A versão completa está preservada em `../Lab-completo/`.
+A porta de entrada gratuita do ecossistema Relevantia. É a primeira plataforma que um possível cliente usa: ele não paga nada, faz o Raio X da empresa, acompanha a live Audiência S/A e daqui é levado para as outras soluções.
 
-Ela usa a identidade da landing com uma estética de caderno de laboratório: grade fina, rótulos técnicos e o laudo em papel creme.
+| Solução | Como o usuário entra pelo Lab |
+| --- | --- |
+| Relevantia Intelligence | Teste de 3 dias grátis |
+| Radar | Cadastro gratuito (marca, detentor ou agência) |
+| The Edge | Inscrição (vai para o time com perfil e Raio X) |
+| Agentes e plug and play | Teste de 3 dias grátis |
+
+O visual segue o Design System v3.2. A estrutura e os componentes vêm do Relevantia Intelligence: sidebar com seções, topbar com breadcrumb, overlines, cards, campos e botões em pílula. A identidade continua a escura do Lab, com fundo tinta, grade fina de ouro e o laudo em papel creme. A logo é a oficial (`assets/logos/mark-1.png`, o mesmo arquivo do Intelligence). Sem itálico, título num peso e numa cor só e ouro de preenchimento sempre em gradiente. A copy das soluções é a mesma do site.
 
 ## Fluxo
 
-1. **Boas-vindas**: explica o protocolo de entrada.
+1. **Boas-vindas**: o que o Lab libera, de graça.
 2. **Cadastro**: nome, e-mail, empresa, segmento e cargo.
-3. **Raio X**: 8 perguntas, uma por vez. Faturamento, time e maior desafio completam o perfil.
-4. **Laudo rápido**: o momento da empresa (Em ajuste, Em travessia, Em tração ou Pronta para escalar) e um sinal de atenção. A leitura completa aparece bloqueada, com o convite para o The Edge.
+3. **Raio X**: 9 perguntas, uma por vez. Faturamento, time e maior desafio completam o perfil. As outras 6 perguntas leem uma dimensão do Intelligence cada (Core, Brand, Audience, Business, Partnerships e Beyond).
+4. **Laudo gratuito**: o momento da empresa (Em ajuste, Em travessia, Em tração ou Pronta para escalar), um sinal de atenção e a dimensão que pede atenção. A nota das seis dimensões fica bloqueada e leva ao teste do Intelligence.
 5. **Lab**: no primeiro acesso, um tutorial guiado é aberto. O botão `?` no topo abre o tutorial de novo.
 
-## O que fica de fora de propósito
+## Menu
 
-- Pontuação detalhada e leitura por área: só o momento e um sinal aparecem.
-- Anotações + IA: uma leitura rápida por live (um parágrafo e uma pergunta para a live). O próximo passo e a ligação com o diagnóstico completo aparecem bloqueados.
+- **Relevantia**: Início (próximo passo recomendado e status das soluções), Soluções e Agentes e plug and play.
+- **Audiência S/A**: Lives, Dúvidas, Votações e Anotações + IA (uma leitura rápida por live).
+- **Sua empresa**: Raio X e Perfil.
 
-## Estrutura
+## Próximo passo recomendado
 
-```
-index.html     → casca da página
-css/lab.css    → estilos (tokens da Relevantia + componentes do Lab)
-js/lab.js      → app inteiro (rotas, módulos, Raio X, IA, tutorial)
-```
+`recommend()` em `js/lab.js`:
+- Dono, sócio ou CEO de empresa com faturamento de R$ 5 milhões ou mais → The Edge.
+- Partnerships como a dimensão que pede atenção → Radar.
+- O resto → Intelligence.
+
+O que o usuário já ativou sai da fila e entra o próximo.
 
 ## O que ajustar antes de publicar
 
 No topo de `js/lab.js`:
 
-- `CONFIG.live`: dia da semana, horário, duração, link da live e do canal.
-- `CONFIG.trialUrls`: links dos produtos (The Edge, Radar, Intelligence).
-- `CONFIG.aiEndpoint`: endpoint da IA real (veja abaixo).
-- `CONTENT`: títulos das lives, votação, perguntas iniciais e a descrição dos produtos. **São dados de exemplo.**
+- `CONFIG.live`: dia da semana, horário (terça, 20h), duração e link da live.
+- `CONFIG.urls.intelligence`: link de acesso ao teste do Intelligence. Com `#`, o usuário vê que o acesso chega por e-mail.
+- `CONFIG.edgeEndpoint`: para onde vai a inscrição no The Edge. Vazio = abre o e-mail para `CONFIG.contact.email` com a mensagem pronta (ou o WhatsApp, se `CONFIG.contact.whatsapp` estiver preenchido), como no formulário do site.
+- `TOOLS`: os agentes e plug and play. É uma seleção curta da planilha "Frameworks The Edge", só com o que já dá para entregar hoje, sem integração: Agente de Prospecção (o Hunting Agent), Agente de Proposta e Inventário de Ativos. Preencha `url` com o link de acesso de cada um.
+- `CONTENT`: títulos das lives, votação e perguntas iniciais. **São dados de exemplo.**
 
 ## IA das anotações
 
@@ -40,7 +50,16 @@ Sem endpoint, a IA roda localmente: ela identifica o assunto da anotação por p
 
 ## Dados
 
-Na V1, tudo fica no `localStorage` do navegador. Para formar a base de empresas da Relevantia, é preciso conectar um back-end, por exemplo Supabase ou Firebase. O objeto de estado `S` em `lab.js` já tem o formato a salvar (`profile`, `raiox`, `notes`, `questions`, votos e trials). Em Perfil, o botão **Copiar meus dados** copia esse objeto em JSON.
+Tudo fica no `localStorage` do navegador (chave `lab-relevantia-v2`). Quem usou a V1 mantém perfil, anotações e votos, e refaz o Raio X, porque agora ele lê as seis dimensões. Para formar a base de leads da Relevantia, é preciso conectar um back-end, por exemplo Supabase. O objeto de estado `S` já tem o formato a salvar (`profile`, `raiox`, `trials`, `radar`, `edge`, `notes`, `questions` e votos). Em Perfil, o botão **Copiar meus dados** copia esse objeto em JSON.
+
+## Estrutura
+
+```
+index.html     → casca da página
+css/lab.css    → estilos (tokens do DS v3.2 + componentes do Lab)
+js/lab.js      → app inteiro (rotas, Raio X, soluções, IA, tutorial)
+detentores/    → versão do Lab para detentores de audiência
+```
 
 ## Rodar localmente
 
