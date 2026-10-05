@@ -7,7 +7,7 @@ A porta de entrada gratuita do ecossistema Relevantia. É a primeira plataforma 
 | Relevantia Intelligence | Teste de 3 dias grátis |
 | Radar | Cadastro gratuito (marca, detentor ou agência) |
 | The Edge | Inscrição (vai para o time com perfil e Raio X) |
-| Agentes e plug and play | Teste de 3 dias grátis |
+| Ferramentas (agentes e plug and play) | Teste de 3 dias grátis |
 
 O visual segue o Design System v3.2. A estrutura e os componentes vêm do Relevantia Intelligence: sidebar com seções, topbar com breadcrumb, overlines, cards, campos e botões em pílula. A identidade continua a escura do Lab, com fundo tinta, grade fina de ouro e o laudo em papel creme. A logo é a oficial (`assets/logos/mark-1.png`, o mesmo arquivo do Intelligence). Sem itálico, título num peso e numa cor só e ouro de preenchimento sempre em gradiente. A copy das soluções é a mesma do site.
 
@@ -21,7 +21,7 @@ O visual segue o Design System v3.2. A estrutura e os componentes vêm do Releva
 
 ## Menu
 
-- **Relevantia**: Início (próximo passo recomendado e status das soluções), Soluções e Agentes e plug and play.
+- **Relevantia**: Início (próximo passo recomendado e status das soluções), Soluções e Ferramentas.
 - **Audiência S/A**: Lives, Dúvidas, Votações e Anotações + IA (uma leitura rápida por live).
 - **Sua empresa**: Raio X e Perfil.
 
@@ -41,7 +41,7 @@ No topo de `js/lab.js`:
 - `CONFIG.live`: dia da semana, horário (terça, 20h), duração e link da live.
 - `CONFIG.urls.intelligence`: link de acesso ao teste do Intelligence. Com `#`, o usuário vê que o acesso chega por e-mail.
 - `CONFIG.edgeEndpoint`: para onde vai a inscrição no The Edge. Vazio = abre o e-mail para `CONFIG.contact.email` com a mensagem pronta (ou o WhatsApp, se `CONFIG.contact.whatsapp` estiver preenchido), como no formulário do site.
-- `TOOLS`: os agentes e plug and play. É uma seleção curta da planilha "Frameworks The Edge", só com o que já dá para entregar hoje, sem integração: Agente de Prospecção (o Hunting Agent), Agente de Proposta e Inventário de Ativos. Preencha `url` com o link de acesso de cada um.
+- `TOOLS`: as ferramentas (agentes e plug and play). É uma seleção curta da planilha "Frameworks The Edge", só com o que já dá para entregar hoje, sem integração: Agente de Prospecção (o Hunting Agent), Agente de Proposta e Inventário de Ativos. Preencha `url` com o link de acesso de cada um.
 - `CONTENT`: títulos das lives, votação e perguntas iniciais. **São dados de exemplo.**
 
 ## IA das anotações

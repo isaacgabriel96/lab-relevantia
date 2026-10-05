@@ -93,7 +93,7 @@ const RADAR_ROLES = [
 const EDGE_FORMATS = ['Mentoria executiva', 'Conselho ampliado', 'Sprint estratégico', 'Ainda não sei'];
 const prod = k => PRODUCTS.find(p => p.k === k);
 
-// Agentes e plug and play: quem está no Lab testa sem custo.
+// Ferramentas (agentes e plug and play): quem está no Lab testa sem custo.
 // Seleção curta da planilha "Frameworks The Edge", só com o que já dá para entregar hoje
 // (conversa e documento, sem integração). type: 'agent' ou 'plug' (plug and play).
 // url: acesso liberado no teste ('#' = o acesso chega por e-mail). days: duração do teste.
@@ -338,7 +338,7 @@ function recommend() {
 const LAB_VIEWS = {
   inicio: { t: 'Início', i: 'home', sec: 'Relevantia' },
   solucoes: { t: 'Soluções', i: 'grid', sec: 'Relevantia' },
-  ferramentas: { t: 'Agentes e plug and play', short: 'Agentes', i: 'bolt', sec: 'Relevantia' },
+  ferramentas: { t: 'Ferramentas', i: 'bolt', sec: 'Relevantia' },
   lives: { t: 'Lives', i: 'play', sec: 'Audiência S/A' },
   duvidas: { t: 'Dúvidas', i: 'ask', sec: 'Audiência S/A' },
   votacoes: { t: 'Votações', i: 'vote', sec: 'Audiência S/A' },
@@ -401,7 +401,7 @@ const ONB = {
           <li><b>Intelligence</b><span>${CONFIG.intelTrialDays} dias grátis</span></li>
           <li><b>Radar</b><span>Cadastro gratuito</span></li>
           <li><b>The Edge</b><span>Inscrição</span></li>
-          <li><b>Agentes e plug and play</b><span>Teste grátis</span></li>
+          <li><b>Ferramentas</b><span>Teste grátis</span></li>
         </ul>
         <p class="welcome-alt">É atleta, criador, artista, evento ou mídia? <a class="link" href="detentores/">Entre pelo Lab para detentores ${ic('arrow')}</a></p>
       </div>
@@ -684,7 +684,7 @@ const VIEWS = {
       it.st === 'active'
         ? { i: 'intel', t: `Seu teste do Intelligence termina em ${plural(it.left, 'dia')}`, p: 'Aproveite para ver a nota das seis dimensões e a alavanca prioritária.', m: 'Intelligence', n: true }
         : { i: 'intel', t: `Intelligence liberado por ${CONFIG.intelTrialDays} dias para quem está no Lab`, p: 'A leitura completa do seu Raio X, nas seis dimensões.', m: 'Soluções' },
-      { i: 'bolt', t: 'Agentes e plug and play para testar grátis', p: TOOLS.map(t => t.name).join(' · '), m: 'Soluções' },
+      { i: 'bolt', t: 'Ferramentas para testar grátis', p: TOOLS.map(t => t.name).join(' · '), m: 'Soluções' },
       { i: 'ask', t: `Dúvidas para a live #${pad(CONTENT.nextLive.num)} até ${fmtDay(prev).split(',')[0]}`, p: 'As mais votadas entram primeiro na pauta.', m: 'Prazo' },
       { i: 'file', t: `Gravação da live #${pad(CONTENT.lives[0].num)} disponível`, p: CONTENT.lives[0].title, m: 'Lives' },
     ];
@@ -830,12 +830,12 @@ const VIEWS = {
       <li><span class="mono">04 · Operação</span><b>Radar</b><small>Cadastro gratuito</small></li>
     </ol>
     <div class="grid g-3 products">${PRODUCTS.slice().sort((x, y) => (y.k === rec.k) - (x.k === rec.k)).map(x => productCard(x, x.k === rec.k)).join('')}</div>
-    <a class="tools-banner" href="#ferramentas">${ic('bolt')}<div><b>Agentes e plug and play</b><span>${TOOLS.map(t => t.name).join(' · ')}. Teste grátis por ${plural(TOOLS[0].days, 'dia')}.</span></div>${ic('chev')}</a>`;
+    <a class="tools-banner" href="#ferramentas">${ic('bolt')}<div><b>Ferramentas</b><span>${TOOLS.map(t => t.name).join(' · ')}. Teste grátis por ${plural(TOOLS[0].days, 'dia')}.</span></div>${ic('chev')}</a>`;
   },
 
   ferramentas: () => `<p class="lead" style="margin-bottom:24px">Ferramentas prontas da metodologia The Edge. Os agentes conversam com você e entregam um documento; o plug and play é um formato pronto para usar, sem implantação.</p>
     <div class="grid g-3">${TOOLS.map(toolCard).join('')}</div>
-    <p class="small muted" style="margin-top:22px">Outros agentes e plug and play chegam com o Intelligence e com o The Edge. <a class="link" href="#solucoes">Ver as soluções ${ic('arrow')}</a></p>`,
+    <p class="small muted" style="margin-top:22px">Outras ferramentas chegam com o Intelligence e com o The Edge. <a class="link" href="#solucoes">Ver as soluções ${ic('arrow')}</a></p>`,
 
   'the-edge': () => {
     const p = S.profile, E = S.edge;
@@ -971,7 +971,7 @@ const TOUR_ALL = () => [
   { t: `Bem-vindo ao Lab, ${first(S.profile.nome)}`, p: `O Lab é gratuito e é a sua porta de entrada para a Relevantia. O Raio X da ${S.profile.empresa} já está salvo. Em um minuto eu te mostro onde fica cada coisa.` },
   { s: '[data-tour="next-step"]', t: 'Seu próximo passo', p: 'A solução que mais combina com o momento da empresa, escolhida a partir do Raio X.' },
   { s: '[data-tour="nav-solucoes"]', t: 'Soluções', p: `Intelligence com ${CONFIG.intelTrialDays} dias grátis, cadastro gratuito no Radar e inscrição no The Edge.` },
-  { s: '[data-tour="nav-ferramentas"]', t: 'Agentes e plug and play', p: 'Ferramentas prontas da metodologia The Edge para testar sem custo.' },
+  { s: '[data-tour="nav-ferramentas"]', t: 'Ferramentas', p: 'Agentes e plug and play da metodologia The Edge para testar sem custo.' },
   { s: '[data-tour="next-live"]', t: 'Audiência S/A', p: 'A live semanal do Isaac, com data, contagem regressiva e link de acesso. Adicione na agenda para não perder.' },
   { s: '[data-tour="nav-duvidas"]', t: 'Dúvidas', p: 'Mande perguntas para a próxima live e vote nas dos outros participantes. As mais votadas entram primeiro.' },
   { s: '[data-tour="nav-votacoes"]', t: 'Votações', p: 'Você escolhe o tema das próximas lives.' },
