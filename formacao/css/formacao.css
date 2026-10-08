@@ -20,7 +20,7 @@
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-family:var(--f-label);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-3)}
 .pass-body{position:relative;padding:4px 22px 22px}
 .pass-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.pass-head b{display:block;font-family:var(--f-head);font-weight:600;font-size:18px;letter-spacing:-.01em}
+.pass-head b{display:block;font-family:var(--f-head);font-weight:600;font-size:clamp(24px,2.2vw,30px);line-height:1.15;letter-spacing:-.02em}
 .pass-head small{display:block;font-size:13px;color:rgba(255,255,255,.55)}
 .pass-mark{width:28px;height:28px}
 .pass-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:18px 0 0;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08)}
@@ -220,25 +220,36 @@ a.how-tools{color:inherit;text-decoration:none;cursor:pointer}
 @keyframes jt4{0%,54%{color:rgba(255,255,255,.45)}62%,84%{color:#fff}96%,100%{color:rgba(255,255,255,.45)}}
 .jornada li:last-child b{font-weight:600}
 
-/* o problema: três níveis */
-.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,96px);align-items:center}
+/* o problema: cinco níveis em escada */
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px clamp(40px,6vw,96px);align-items:end}
 .prob-grid>*{min-width:0}
-.prob-grid .pain-copy{margin-top:28px}
-.niveis{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end;min-height:420px}
+.prob-grid .pain-copy p:first-child{margin-top:0}
+.niveis-box{grid-column:1/-1;position:relative;margin-top:clamp(36px,5vw,64px)}
+.niveis{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:end;min-height:440px}
 .nivel{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
 .nivel-bar{flex:none;border-radius:14px 14px 0 0;background:linear-gradient(180deg,rgba(184,134,11,.18),rgba(184,134,11,.06));border:1px solid rgba(184,134,11,.25);border-bottom:0;
   height:0;transition:height 1.2s var(--ease)}
-.niveis.in .n1 .nivel-bar{height:60px;transition-delay:.2s}
-.niveis.in .n2 .nivel-bar{height:120px;transition-delay:.45s}
-.niveis.in .n3 .nivel-bar{height:190px;transition-delay:.7s;background:var(--grad-gold);border-color:transparent;box-shadow:0 20px 50px rgba(184,134,11,.3)}
-.nivel-txt{order:-1;padding:0 4px 14px}
+.niveis.in .n1 .nivel-bar{height:36px;transition-delay:.15s}
+.niveis.in .n2 .nivel-bar{height:76px;transition-delay:.3s}
+.niveis.in .n3 .nivel-bar{height:116px;transition-delay:.45s}
+.niveis.in .n4 .nivel-bar{height:156px;transition-delay:.6s}
+.niveis.in .n5 .nivel-bar{height:206px;transition-delay:.75s;background:var(--grad-gold);border-color:transparent;box-shadow:0 20px 50px rgba(184,134,11,.3)}
+.nivel-txt{order:-1;padding:0 6px 16px}
 .nivel-n{font-family:var(--f-tech);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep)}
-.nivel h3{margin-top:4px;font-size:clamp(18px,1.6vw,22px);color:var(--text-dark)}
-.nivel p{margin-top:6px;font-size:14px;line-height:1.5;color:var(--muted-dark)}
+.nivel h3{margin-top:4px;font-size:clamp(17px,1.5vw,21px);color:var(--text-dark)}
+.nivel p{margin-top:6px;font-size:13.5px;line-height:1.5;color:var(--muted-dark)}
 .nivel-flag{display:inline-block;margin-top:10px;padding:4px 10px;border-radius:100px;font-family:var(--f-label);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   color:#c2410c;background:rgba(255,94,77,.1);border:1px solid rgba(255,94,77,.3);opacity:0;transform:translateY(6px);transition:opacity .5s ease 1.3s,transform .5s var(--ease) 1.3s}
-.nivel-flag.gold{color:var(--gold-deep);background:rgba(184,134,11,.12);border-color:rgba(184,134,11,.4);transition-delay:1.6s}
+.nivel-flag.gold{color:var(--gold-deep);background:rgba(184,134,11,.12);border-color:rgba(184,134,11,.4);transition-delay:2.6s}
 .niveis.in .nivel-flag{opacity:1;transform:none}
+/* efeitos (uma vez só, quando a escada entra na tela ao rolar): círculo vermelho no nível 2 e seta tracejada até o nível 5 */
+.niveis-fx{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.fx-circle{stroke:#E5484D;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:.9}
+.niveis-box.fx-on .fx-circle{animation:fxDraw .9s cubic-bezier(.6,0,.3,1) .3s forwards}
+.fx-arrow{stroke:#8A6608;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:7 9}
+.fx-reveal{stroke-dasharray:1;stroke-dashoffset:1}
+.niveis-box.fx-on .fx-reveal{animation:fxDraw 1.2s cubic-bezier(.5,0,.3,1) 1.1s forwards}
+@keyframes fxDraw{to{stroke-dashoffset:0}}
 
 /* para quem é: 6 perfis */
 .para-quem{margin-top:clamp(88px,11vw,150px)}
@@ -260,35 +271,33 @@ a.how-tools{color:inherit;text-decoration:none;cursor:pointer}
 
 @media (max-width:860px){
   .prob-grid{grid-template-columns:1fr}
-  .niveis{min-height:380px}
 }
 @media (max-width:640px){
   .jornada b{font-size:9px;letter-spacing:.04em}
-  .niveis{gap:8px;min-height:400px}
-  .nivel p{font-size:12.5px}
-  .nivel-flag{font-size:9.5px;padding:4px 8px}
-  .niveis.in .n1 .nivel-bar{height:40px}.niveis.in .n2 .nivel-bar{height:80px}.niveis.in .n3 .nivel-bar{height:130px}
 }
 @media (prefers-reduced-motion:reduce){
   .hero h1 .line>span{transform:none;opacity:1;transition:none}
   .jornada::after{transform:none;animation:none}
   .j-dot{background:var(--gold-3);border-color:var(--gold-3);animation:none}
   .jornada b{color:#fff;animation:none}
+  .fx-circle,.fx-reveal{stroke-dashoffset:0;animation:none!important}
 }
 /* hero com a jornada embaixo: empilha em coluna */
 .hero{flex-direction:column;justify-content:center;align-items:stretch}
-/* níveis no celular: viram degraus empilhados (cada um mais largo que o anterior) */
-@media (max-width:640px){
+/* níveis em telas menores: degraus empilhados, cada um mais largo; a seta desce pela margem esquerda */
+@media (max-width:860px){
   .niveis{grid-template-columns:1fr;min-height:0;gap:10px;align-items:stretch}
   .nivel{height:auto;margin-left:auto;padding:16px 18px;border-radius:16px;background:linear-gradient(155deg,rgba(255,255,255,.92),rgba(255,255,255,.6));border:1px solid var(--cream-line);
     width:0;opacity:0;transition:width 1s var(--ease),opacity .6s ease}
   .niveis.in .nivel{opacity:1}
-  .niveis.in .n1{width:76%;transition-delay:.15s}
-  .niveis.in .n2{width:88%;transition-delay:.35s}
-  .niveis.in .n3{width:100%;transition-delay:.55s;background:linear-gradient(135deg,#120D02,#050300);border-color:rgba(184,134,11,.45)}
-  .n3 h3{color:#fff}.n3 p{color:rgba(255,255,255,.7)}.n3 .nivel-n{color:var(--gold-3)}
+  .niveis.in .n1{width:64%;transition-delay:.1s}
+  .niveis.in .n2{width:73%;transition-delay:.25s}
+  .niveis.in .n3{width:82%;transition-delay:.4s}
+  .niveis.in .n4{width:91%;transition-delay:.55s}
+  .niveis.in .n5{width:100%;transition-delay:.7s;background:linear-gradient(135deg,#120D02,#050300);border-color:rgba(184,134,11,.45)}
+  .n5 h3{color:#fff}.n5 p{color:rgba(255,255,255,.7)}.n5 .nivel-n{color:var(--gold-3)}
+  .n5 .nivel-flag.gold{color:var(--gold-3);border-color:rgba(232,201,106,.45)}
   .nivel-bar{display:none}
   .nivel-txt{padding:0}
   .nivel p{font-size:14px}
 }
-@media (max-width:640px){.n3 .nivel-flag.gold{color:var(--gold-3);border-color:rgba(232,201,106,.45)}}

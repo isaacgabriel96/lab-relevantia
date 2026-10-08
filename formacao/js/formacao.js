@@ -85,4 +85,40 @@ const INSCRICAO_URL = '';
       requestAnimationFrame(watch);
     }, { passive: true });
   }
+
+  // níveis: círculo vermelho em volta do nível 2 e seta do nível 2 até o nível 5,
+  // recalculados a cada mudança de tamanho (no desktop sobe pelas barras; no celular desce pela margem)
+  const box = document.querySelector('.niveis-box');
+  if (box) {
+    const fx = box.querySelector('.niveis-fx'), lv = [...box.querySelectorAll('.nivel')];
+    const circle = fx.querySelector('.fx-circle'), arrow = fx.querySelector('.fx-arrow'), reveal = fx.querySelector('.fx-reveal');
+    const draw = () => {
+      const o = box.getBoundingClientRect(), r = el => { const b = el.getBoundingClientRect(); return { x: b.left - o.left, y: b.top - o.top, w: b.width, h: b.height }; };
+      const stacked = getComputedStyle(lv[0].querySelector('.nivel-bar')).display === 'none';
+      // círculo: elipse "à mão" em volta do texto do nível 2 (ou do cartão inteiro, no celular)
+      const t = r(stacked ? lv[1] : lv[1].querySelector('.nivel-txt'));
+      const cx = t.x + t.w / 2, cy = t.y + t.h / 2, rx = t.w / 2 + (stacked ? 10 : 16), ry = t.h / 2 + (stacked ? 10 : 14);
+      circle.setAttribute('d', `M ${cx + rx * .15} ${cy - ry} A ${rx} ${ry} -4 1 1 ${cx - rx * .1} ${cy - ry * 1.02} L ${cx + rx * .3} ${cy - ry * .94}`);
+      let d;
+      if (stacked) {
+        const a = r(lv[1]), b = r(lv[4]), m = r(lv[2]), x0 = a.x - 18, xm = m.x - 26;
+        d = `M ${x0} ${a.y + a.h * .75} Q ${xm} ${(a.y + a.h + b.y) / 2} ${b.x + 28} ${b.y - 10}`;
+      } else {
+        const a = r(lv[1].querySelector('.nivel-bar')), b = r(lv[4].querySelector('.nivel-bar'));
+        const x0 = a.x + a.w / 2, y0 = a.y + 30, x1 = b.x + b.w / 2, y1 = b.y + 30;
+        d = `M ${x0} ${y0} C ${x0 + (x1 - x0) * .55} ${y0 + 4} ${x1 - (x1 - x0) * .3} ${y1 + (y0 - y1) * .35} ${x1} ${y1}`;
+      }
+      arrow.setAttribute('d', d); reveal.setAttribute('d', d);
+    };
+    draw();
+    box.addEventListener('transitionend', draw);
+    // desenha uma vez só, quando a pessoa rola até a escada estar bem visível
+    const fio = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting || scrollY < 1) return;
+      draw(); box.classList.add('fx-on'); fio.disconnect();
+    }), { threshold: .45 });
+    fio.observe(box.querySelector('.niveis'));
+    addEventListener('resize', draw);
+    if (window.ResizeObserver) { const ro = new ResizeObserver(draw); ro.observe(box); lv.forEach(l => ro.observe(l)); box.querySelectorAll('.nivel-bar').forEach(b => ro.observe(b)); }
+  }
 })();
