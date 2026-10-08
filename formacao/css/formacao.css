@@ -1,7 +1,8 @@
 /* Primeira Formação — complementa ../../css/style.css (tokens e componentes da landing) */
 
 /* ============ HERO ============ */
-.hero h1{font-size:clamp(44px,5.6vw,80px);line-height:1.02;letter-spacing:-.035em}
+.hero h1{font-size:clamp(54px,6.6vw,96px);line-height:.98;letter-spacing:-.04em;font-weight:700}
+.hero h1 .to{font-weight:500;font-size:.62em;letter-spacing:-.02em;color:rgba(255,255,255,.55)}
 .hero .lead{max-width:500px}
 
 /* cartão-resumo da turma */
@@ -121,7 +122,7 @@
   .entregas{grid-template-columns:1fr}
 }
 @media (max-width:640px){
-  .hero h1{font-size:clamp(40px,calc((100vw - 32px) / 7),60px);line-height:1.04}
+  .hero h1{font-size:clamp(44px,calc((100vw - 32px) / 5.6),64px);line-height:1}
   .pass-photo{aspect-ratio:4/3}
   .pass-body{padding:2px 16px 16px}
   .pass-facts div{padding:10px 10px}
@@ -154,3 +155,94 @@
   .radar>:first-child{order:2}
   .radar .lab-vis{margin-left:0;margin-right:auto}
 }
+
+/* ============ v3: nome do curso, jornada, problema, para quem é, bastidores, botões, preço ============ */
+.hero .tagline{margin-top:20px;font-family:var(--f-head);font-weight:600;font-size:clamp(22px,2.2vw,30px);letter-spacing:-.02em;color:#fff}
+@media (max-width:1024px){.hero .tagline{order:2}}
+
+/* jornada animada no hero */
+.jornada{position:relative;list-style:none;margin:clamp(40px,5vw,64px) 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)}
+.jornada::before,.jornada::after{content:"";position:absolute;left:12.5%;right:12.5%;top:7px;height:2px;border-radius:2px}
+.jornada::before{background:rgba(255,255,255,.1)}
+.jornada::after{background:var(--grad-gold);box-shadow:0 0 12px rgba(232,201,106,.6);transform-origin:left;animation:jfill 6s var(--ease-io) infinite}
+.jornada li{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.jornada b{font-family:var(--f-tech);font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);animation:jtext 6s var(--ease-io) infinite}
+.j-dot{width:16px;height:16px;border-radius:50%;background:#120D02;border:2px solid rgba(255,255,255,.2);animation:jdot 6s var(--ease-io) infinite}
+.jornada li:nth-child(2) .j-dot,.jornada li:nth-child(2) b{animation-delay:.9s}
+.jornada li:nth-child(3) .j-dot,.jornada li:nth-child(3) b{animation-delay:1.8s}
+.jornada li:nth-child(4) .j-dot,.jornada li:nth-child(4) b{animation-delay:2.7s}
+@keyframes jfill{0%{transform:scaleX(0)}45%,85%{transform:scaleX(1)}100%{transform:scaleX(1);opacity:0}}
+@keyframes jdot{0%{background:#120D02;border-color:rgba(255,255,255,.2);box-shadow:none}10%,80%{background:var(--gold-3);border-color:var(--gold-3);box-shadow:0 0 0 6px rgba(232,201,106,.15),0 0 20px rgba(232,201,106,.7)}100%{background:#120D02;border-color:rgba(255,255,255,.2)}}
+@keyframes jtext{0%{color:rgba(255,255,255,.45)}10%,80%{color:#fff}100%{color:rgba(255,255,255,.45)}}
+.jornada li:last-child b{font-weight:600}
+
+/* o problema: três níveis */
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,96px);align-items:center}
+.prob-grid>*{min-width:0}
+.prob-grid .pain-copy{margin-top:28px}
+.niveis{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end;min-height:420px}
+.nivel{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.nivel-bar{flex:none;border-radius:14px 14px 0 0;background:linear-gradient(180deg,rgba(184,134,11,.18),rgba(184,134,11,.06));border:1px solid rgba(184,134,11,.25);border-bottom:0;
+  height:0;transition:height 1.2s var(--ease)}
+.niveis.in .n1 .nivel-bar{height:60px;transition-delay:.2s}
+.niveis.in .n2 .nivel-bar{height:120px;transition-delay:.45s}
+.niveis.in .n3 .nivel-bar{height:190px;transition-delay:.7s;background:var(--grad-gold);border-color:transparent;box-shadow:0 20px 50px rgba(184,134,11,.3)}
+.nivel-txt{order:-1;padding:0 4px 14px}
+.nivel-n{font-family:var(--f-tech);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep)}
+.nivel h3{margin-top:4px;font-size:clamp(18px,1.6vw,22px);color:var(--text-dark)}
+.nivel p{margin-top:6px;font-size:14px;line-height:1.5;color:var(--muted-dark)}
+.nivel-flag{display:inline-block;margin-top:10px;padding:4px 10px;border-radius:100px;font-family:var(--f-label);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:#c2410c;background:rgba(255,94,77,.1);border:1px solid rgba(255,94,77,.3);opacity:0;transform:translateY(6px);transition:opacity .5s ease 1.3s,transform .5s var(--ease) 1.3s}
+.nivel-flag.gold{color:var(--gold-deep);background:rgba(184,134,11,.12);border-color:rgba(184,134,11,.4);transition-delay:1.6s}
+.niveis.in .nivel-flag{opacity:1;transform:none}
+
+/* para quem é: 6 perfis */
+.para-quem{margin-top:clamp(88px,11vw,150px)}
+.formatos-6{grid-template-columns:repeat(3,1fr)}
+@media (max-width:1024px){.formatos-6{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.formatos-6{grid-template-columns:1fr}}
+
+/* bastidores (mesmo bloco da landing) */
+.backstage-t{font-size:clamp(22px,2.2vw,28px)}
+
+/* botões dourados com texto branco; no hover, branco em negrito */
+.btn-gold{color:#fff;text-shadow:0 1px 2px rgba(60,40,0,.35)}
+
+/* preço: parcelado em destaque, à vista pequeno */
+.price-v{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:0 14px}
+.price-x{font-size:.42em;font-weight:500;letter-spacing:-.01em;color:rgba(255,255,255,.7)}
+.price-cash{font-size:15px;color:rgba(255,255,255,.75)}
+.price-sub{margin-top:6px}
+
+@media (max-width:860px){
+  .prob-grid{grid-template-columns:1fr}
+  .niveis{min-height:380px}
+}
+@media (max-width:640px){
+  .jornada b{font-size:10.5px;letter-spacing:.08em}
+  .niveis{gap:8px;min-height:400px}
+  .nivel p{font-size:12.5px}
+  .nivel-flag{font-size:9.5px;padding:4px 8px}
+  .niveis.in .n1 .nivel-bar{height:40px}.niveis.in .n2 .nivel-bar{height:80px}.niveis.in .n3 .nivel-bar{height:130px}
+}
+@media (prefers-reduced-motion:reduce){
+  .jornada::after{transform:none}
+  .j-dot{background:var(--gold-3)}
+}
+/* hero com a jornada embaixo: empilha em coluna */
+.hero{flex-direction:column;justify-content:center;align-items:stretch}
+/* níveis no celular: viram degraus empilhados (cada um mais largo que o anterior) */
+@media (max-width:640px){
+  .niveis{grid-template-columns:1fr;min-height:0;gap:10px;align-items:stretch}
+  .nivel{height:auto;margin-left:auto;padding:16px 18px;border-radius:16px;background:linear-gradient(155deg,rgba(255,255,255,.92),rgba(255,255,255,.6));border:1px solid var(--cream-line);
+    width:0;opacity:0;transition:width 1s var(--ease),opacity .6s ease}
+  .niveis.in .nivel{opacity:1}
+  .niveis.in .n1{width:76%;transition-delay:.15s}
+  .niveis.in .n2{width:88%;transition-delay:.35s}
+  .niveis.in .n3{width:100%;transition-delay:.55s;background:linear-gradient(135deg,#120D02,#050300);border-color:rgba(184,134,11,.45)}
+  .n3 h3{color:#fff}.n3 p{color:rgba(255,255,255,.7)}.n3 .nivel-n{color:var(--gold-3)}
+  .nivel-bar{display:none}
+  .nivel-txt{padding:0}
+  .nivel p{font-size:14px}
+}
+@media (max-width:640px){.n3 .nivel-flag.gold{color:var(--gold-3);border-color:rgba(232,201,106,.45)}}

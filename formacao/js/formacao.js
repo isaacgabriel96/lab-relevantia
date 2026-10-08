@@ -39,6 +39,14 @@ const INSCRICAO_URL = '';
     requestAnimationFrame(step);
   }
 
+  // bastidores: no toque não existe hover, então a foto em foco no carrossel ganha cor
+  const shots = document.querySelector('.shots');
+  if (shots && matchMedia('(hover: none)').matches) {
+    const sio = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('on', e.intersectionRatio >= .75)),
+      { root: getComputedStyle(shots).overflowX === 'auto' ? shots : null, threshold: [0, .75, 1] });
+    shots.querySelectorAll('.shot').forEach(el => sio.observe(el));
+  }
+
   // nav + barra de progresso + CTA mobile
   const nav = document.getElementById('nav'), bar = document.getElementById('progress'), mcta = document.getElementById('mcta');
   const hero = document.getElementById('hero'), final = document.getElementById('investimento');
