@@ -63,4 +63,26 @@ const INSCRICAO_URL = '';
   };
   addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
   onScroll();
+
+  // jornada do hero: quando a pessoa começa a rolar, acelera até os quatro pontos acenderem,
+  // para a animação terminar antes de a jornada sair da tela; depois volta ao ritmo normal
+  const jornada = document.querySelector('.jornada');
+  if (jornada && !reduce && jornada.getAnimations) {
+    const CYCLE = 11000, LIT = .64 * CYCLE, RUSH = 2.6;
+    let rushing = false;
+    const anims = () => jornada.getAnimations({ subtree: true }).filter(a => /^j(fill|d|t)/.test(a.animationName || ''));
+    const phase = () => { const a = anims()[0]; return a ? (a.currentTime % CYCLE) : LIT; };
+    const watch = () => {
+      if (phase() >= LIT && phase() < .84 * CYCLE) { anims().forEach(a => a.playbackRate = 1); rushing = false; return; }
+      requestAnimationFrame(watch);
+    };
+    addEventListener('scroll', () => {
+      if (rushing || scrollY < 10 || jornada.getBoundingClientRect().bottom < 0) return;
+      const p = phase();
+      if (p >= LIT && p < .84 * CYCLE) return; // já está tudo aceso
+      rushing = true;
+      anims().forEach(a => a.playbackRate = RUSH);
+      requestAnimationFrame(watch);
+    }, { passive: true });
+  }
 })();
