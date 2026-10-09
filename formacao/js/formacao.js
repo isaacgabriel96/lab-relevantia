@@ -1,7 +1,7 @@
 /* ===== CONFIG
    INSCRICAO_URL: link de inscrição/pagamento da Primeira Formação.
    Enquanto estiver vazio, o botão final só leva até a seção de investimento. ===== */
-const INSCRICAO_URL = '';
+const INSCRICAO_URL = 'https://pay.hub.la/l31U7R6dzmQNoOmWUagn';
 
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
