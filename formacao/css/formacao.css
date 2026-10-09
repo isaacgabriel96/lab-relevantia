@@ -288,13 +288,12 @@ a.how-tools{color:inherit;text-decoration:none;cursor:pointer}
 @media (max-width:860px){
   .niveis{grid-template-columns:1fr;min-height:0;gap:10px;align-items:stretch}
   .nivel{height:auto;margin-left:auto;padding:16px 18px;border-radius:16px;background:linear-gradient(155deg,rgba(255,255,255,.92),rgba(255,255,255,.6));border:1px solid var(--cream-line);
-    width:0;opacity:0;transition:width 1s var(--ease),opacity .6s ease}
-  .niveis.in .nivel{opacity:1}
-  .niveis.in .n1{width:64%;transition-delay:.1s}
-  .niveis.in .n2{width:73%;transition-delay:.25s}
-  .niveis.in .n3{width:82%;transition-delay:.4s}
-  .niveis.in .n4{width:91%;transition-delay:.55s}
-  .niveis.in .n5{width:100%;transition-delay:.7s;background:linear-gradient(135deg,#120D02,#050300);border-color:rgba(184,134,11,.45)}
+    opacity:0;transform:translateX(24px);transition:opacity .6s ease,transform .8s var(--ease)}
+  /* largura fixa desde o início: animar a largura a partir de zero deixava a lista altíssima e a animação nunca disparava */
+  .n1{width:64%}.n2{width:73%}.n3{width:82%}.n4{width:91%}
+  .n5{width:100%;background:linear-gradient(135deg,#120D02,#050300);border-color:rgba(184,134,11,.45)}
+  .niveis.in .nivel{opacity:1;transform:none}
+  .niveis.in .n2{transition-delay:.12s}.niveis.in .n3{transition-delay:.24s}.niveis.in .n4{transition-delay:.36s}.niveis.in .n5{transition-delay:.48s}
   .n5 h3{color:#fff}.n5 p{color:rgba(255,255,255,.7)}.n5 .nivel-n{color:var(--gold-3)}
   .n5 .nivel-flag.gold{color:var(--gold-3);border-color:rgba(232,201,106,.45)}
   .nivel-bar{display:none}
