@@ -302,9 +302,71 @@ a.how-tools{color:inherit;text-decoration:none;cursor:pointer}
   .nivel p{font-size:14px}
 }
 
-/* Intelligence e Radar: linhas com os recursos de cada ferramenta */
-.lab-row .sq{display:grid;place-items:center;color:var(--gold-3)}
-.lab-row .sq svg{width:18px;height:18px}
-.lab-row b{display:block;font-family:var(--f-head);font-weight:600;font-size:14.5px;letter-spacing:-.01em;color:#fff}
-.lab-row small{display:block;margin-top:2px;font-size:12.5px;line-height:1.4;color:rgba(255,255,255,.58)}
-.ferramentas .lab-row .sq{color:#E6E8EB}
+
+/* ============ Intelligence e Radar: mesmas animações do site da Relevantia ============ */
+.tool-vis{position:relative;width:100%;max-width:480px;margin-left:auto}
+.radar .tool-vis{margin-left:0;margin-right:auto}
+
+/* chat do Intelligence (digita as perguntas sugeridas) */
+.ichat-wrap{position:relative;padding:10px 0}
+.ichat-back{position:absolute;inset:6% -6% 6% 12%;border-radius:24px;background:rgba(255,255,255,.03);border:1px solid rgba(232,201,106,.16);transform:rotate(6deg)}
+.ichat{position:relative;transform:rotate(-4deg);border-radius:24px;padding:24px;
+  background:radial-gradient(70% 60% at 85% 0%,rgba(232,201,106,.10),transparent 60%),linear-gradient(160deg,#1C160A,#0D0A03);
+  border:1px solid rgba(232,201,106,.3);box-shadow:0 40px 90px rgba(0,0,0,.5);transition:transform .8s var(--ease)}
+.intel.in-view .ichat{transform:rotate(-3deg) translateY(-4px)}
+.ichat-top{display:flex;align-items:center;gap:14px}
+.ichat-ico{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(232,201,106,.3);color:var(--gold-3)}
+.ichat-ico svg{width:20px;height:20px}
+.ichat-top small{display:block;font-family:var(--f-label);font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-2)}
+.ichat-top b{display:block;margin-top:2px;font-family:var(--f-head);font-weight:700;font-size:20px;letter-spacing:-.02em;color:#fff}
+.ichat-input{margin-top:18px;padding:16px 16px 12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(232,201,106,.22);min-height:112px;display:flex;flex-direction:column}
+.ichat-line{margin:0;min-height:24px;font-size:15px;line-height:1.5}
+.ichat-typed{display:inline;font-size:15px;color:rgba(255,255,255,.88)}
+.ichat-typed.is-ph{color:rgba(255,255,255,.4)}
+.ichat-caret{display:inline-block;width:1.5px;height:17px;background:var(--gold-3);vertical-align:-3px;margin-left:2px;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.ichat-foot{margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:flex-end;gap:12px;font-size:13px;color:rgba(255,255,255,.6)}
+.ichat-foot>span:first-child{display:inline-flex;align-items:center;gap:6px}
+.ichat-foot>span:first-child svg{width:12px;height:12px;color:var(--gold-2)}
+.ichat-send{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--grad-gold);color:var(--ink)}
+.ichat-send svg{width:16px;height:16px}
+.ichat-sug{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:16px}
+.ichat-sug>span{display:inline-flex;align-items:center;gap:9px;padding:9px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(232,201,106,.22);font-size:13.5px;color:rgba(255,255,255,.85)}
+.ichat-sug svg{width:15px;height:15px;color:var(--gold-2);flex:none}
+.ichat-sug>span:nth-child(2){margin-left:6px}
+.ichat-sug>span:nth-child(3){margin-left:12px}
+
+/* radar girando, pontos piscando e selos flutuando */
+.hero-radar{position:relative;width:100%;max-width:400px;margin:0 auto;aspect-ratio:1/1}
+.hero-radar>svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 60px rgba(184,134,11,.25))}
+.radar-sweep-layer{position:absolute;inset:0;pointer-events:none;transform-origin:center center;will-change:transform;animation:radarSpin 5s linear infinite}
+@keyframes radarSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.radar-chips-wrap{position:absolute;inset:0;pointer-events:none}
+.radar-chip{position:absolute;display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:100px;white-space:nowrap;
+  font-family:var(--f-label);font-size:12.5px;font-weight:500;color:#fff;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  animation:chipFloat 4s ease-in-out infinite}
+.radar-chip svg{width:14px;height:14px;color:var(--gold-2);flex:none}
+.radar-chip:nth-child(1){top:6%;right:-6%}
+.radar-chip:nth-child(2){top:40%;left:-12%;animation-delay:1s}
+.radar-chip:nth-child(3){bottom:18%;right:-8%;animation-delay:2s}
+.radar-chip:nth-child(4){bottom:-2%;left:10%;animation-delay:3s}
+@keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+@media (max-width:1024px){
+  .tool-vis,.radar .tool-vis{margin:8px auto 0}
+  .ichat-back{display:none}
+  .ichat{transform:none!important;padding:18px}
+}
+@media (max-width:640px){
+  .hero-radar{max-width:260px}
+  .radar-chip{font-size:11px;padding:5px 10px}
+  .radar-chip:nth-child(1){top:2%;right:-4%}
+  .radar-chip:nth-child(2){top:40%;left:-8%}
+  .radar-chip:nth-child(3){bottom:16%;right:-6%}
+  .radar-chip:nth-child(4){bottom:-4%;left:8%}
+  .ichat-input{min-height:84px;margin-top:14px}
+  .ichat-top b{font-size:17px}
+  .ichat-sug>span{font-size:12.5px;padding:7px 11px}
+}
+@media (prefers-reduced-motion:reduce){.radar-sweep-layer,.radar-chip,.ichat-caret{animation:none}}

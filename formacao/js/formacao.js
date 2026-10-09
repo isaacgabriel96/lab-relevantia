@@ -121,4 +121,29 @@ const INSCRICAO_URL = 'https://pay.hub.la/l31U7R6dzmQNoOmWUagn';
     addEventListener('resize', draw);
     if (window.ResizeObserver) { const ro = new ResizeObserver(draw); ro.observe(box); lv.forEach(l => ro.observe(l)); box.querySelectorAll('.nivel-bar').forEach(b => ro.observe(b)); }
   }
+
+  // chat do Intelligence: digita as perguntas sugeridas, uma de cada vez (igual ao site da Relevantia)
+  const intel = document.getElementById('intelligence');
+  const typed = intel && intel.querySelector('[data-typed]');
+  if (typed) {
+    const ph = intel.querySelector('.ichat-ph').textContent.trim();
+    const sugs = [...intel.querySelectorAll('.ichat-sug > span > span')].map(s => s.textContent.trim());
+    const show = (text, isPh) => { typed.textContent = text; typed.classList.toggle('is-ph', isPh); };
+    show(ph, true);
+    new IntersectionObserver(es => es.forEach(e => intel.classList.toggle('in-view', e.isIntersecting)), { threshold: .3 }).observe(intel);
+    if (!reduce && sugs.length) {
+      let k = 0;
+      const next = () => {
+        const text = sugs[k++ % sugs.length];
+        let i = 0;
+        const tick = () => {
+          show(text.slice(0, ++i), false);
+          if (i < text.length) setTimeout(tick, 45);
+          else setTimeout(() => { show(ph, true); setTimeout(next, 1400); }, 2200);
+        };
+        tick();
+      };
+      setTimeout(next, 1500);
+    }
+  }
 })();
